@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>아키테크 인사관리 v4.1</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:#f1f5f9;display:flex;height:100vh;overflow:hidden}
+#side{width:200px;background:#0f172a;display:flex;flex-direction:column;flex-shrink:0}
+#side-top{padding:14px 12px;border-bottom:1px solid #1e293b}
+.co{font-size:9px;color:#64748b;margin-bottom:2px}.ti{font-size:13px;font-weight:700;color:#f1f5f9}.dt{font-size:9px;color:#475569;margin-top:2px}
+#nav{flex:1;overflow-y:auto;padding:4px 0}
+.tb{display:flex;align-items:center;gap:7px;width:100%;padding:7px 12px;border:none;cursor:pointer;font-size:11px;text-align:left;background:transparent;color:#94a3b8;border-left:3px solid transparent}
+.tb:hover{background:#1e293b;color:#fff}.tb.on{background:#1e40af;color:#fff;border-left-color:#60a5fa;font-weight:700}
+.tb-g{padding:6px 12px 2px;font-size:9px;color:#475569;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+#ft{padding:8px 12px;border-top:1px solid #1e293b;font-size:9px;color:#475569;line-height:1.6}
+#main{flex:1;overflow-y:auto;padding:20px}
+.sh{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:3px}
+.ss{font-size:11px;color:#64748b;margin-bottom:12px}
+.kgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.kc{padding:12px;border-radius:8px;border:1px solid #e2e8f0;background:#fff}
+.kl{font-size:10px;color:#64748b;margin-bottom:2px}.kv{font-size:20px;font-weight:700}.ks{font-size:10px;color:#94a3b8;margin-top:2px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:12px;overflow:hidden}
+.ch{padding:10px 14px;font-size:12px;font-weight:700;color:#1e293b;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{padding:6px 8px;text-align:left;font-size:10px;font-weight:600;color:#64748b;background:#f8fafc;border-bottom:1px solid #e2e8f0;white-space:nowrap}
+td{padding:5px 8px;color:#374151;border-bottom:1px solid #f8fafc;white-space:nowrap}
+tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
+.bdg{display:inline-flex;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;white-space:nowrap}
+.bi{background:#eff6ff;color:#2563eb}.br{background:#fef2f2;color:#dc2626}
+.bg{background:#f0fdf4;color:#16a34a}.bw{background:#fefce8;color:#ca8a04}.bn{background:#f1f5f9;color:#475569}
+.bp{background:#faf5ff;color:#7c3aed}
+.btn-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.btn{padding:5px 11px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;color:#374151;cursor:pointer;font-size:11px}
+.btn:hover{background:#f1f5f9}.btn.on{background:#eff6ff;color:#2563eb;border-color:#bfdbfe;font-weight:700}
+.btn-add{background:#2563eb;color:#fff;border-color:#2563eb;font-weight:600}.btn-add:hover{background:#1d4ed8}
+.btn-del{background:#fef2f2;color:#dc2626;border-color:#fecaca;padding:3px 8px;font-size:10px}
+.btn-edit{background:#fefce8;color:#ca8a04;border-color:#fde68a;padding:3px 8px;font-size:10px}
+.bar-w{display:flex;align-items:center;gap:6px}.bar{height:5px;border-radius:99px;background:#e2e8f0;flex:1;min-width:30px}
+.bf{height:5px;border-radius:99px}
+.memo-cell{min-width:120px}
+.mi{width:100%;padding:3px 6px;border-radius:4px;border:1px solid #e2e8f0;font-size:10px;font-family:inherit;background:#fafafa;color:#374151;resize:none}
+.mi:focus{outline:none;border-color:#2563eb;background:#fff}
+.alert{background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:7px 12px;font-size:11px;color:#dc2626;margin-bottom:10px}
+.toast{position:fixed;bottom:20px;right:20px;background:#16a34a;color:#fff;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;display:none;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.tip{margin:8px 0;padding:8px;background:#f8fafc;border-radius:6px;font-size:10px;color:#64748b;border-left:3px solid #e2e8f0}
+.org-hq{background:#1e293b;color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700}
+.trend-bar{display:flex;align-items:flex-end;gap:3px;height:48px;margin-top:4px}
+.trend-col{display:flex;flex-direction:column;align-items:center;flex:1}
+.trend-fill{background:#3b82f6;border-radius:3px 3px 0 0;width:100%;min-height:3px}
+.trend-lbl{font-size:9px;color:#94a3b8;margin-top:2px}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:999}
+#modal.show{display:flex}
+.mbox{background:#fff;border-radius:12px;padding:22px;width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.mh{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.mh button{border:none;background:none;cursor:pointer;font-size:16px;color:#64748b}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:9px}
+.fg{display:flex;flex-direction:column;gap:3px}
+.fg label{font-size:10px;color:#64748b;font-weight:600}
+.fg input,.fg select,.fg textarea{padding:6px 9px;border-radius:6px;border:1px solid #e2e8f0;font-size:11px;font-family:inherit;background:#fff;color:#0f172a}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:#2563eb}
+.fg.full{grid-column:1/-1}
+.mf{display:flex;gap:8px;margin-top:14px;justify-content:flex-end}
+.sdiv{font-size:10px;font-weight:700;color:#94a3b8;margin:10px 0 5px;border-bottom:1px solid #f1f5f9;padding-bottom:4px}
+.empty{padding:14px;text-align:center;color:#94a3b8;font-size:11px}
+.up-box{background:#fffbeb;border:1px dashed #fcd34d;border-radius:6px;padding:8px 12px;font-size:11px;color:#92400e;margin-bottom:10px}
+
+/* ── 모바일 반응형 ─────────────────────────── */
+#hamburger{display:none;position:fixed;top:12px;left:12px;z-index:1100;background:#1e40af;border:none;border-radius:8px;padding:8px 10px;cursor:pointer;flex-direction:column;gap:5px}
+#hamburger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px}
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000}
+@media(max-width:768px){
+  #hamburger{display:flex}
+  #overlay.show{display:block}
+  body{overflow:auto}
+  #side{position:fixed;left:-220px;top:0;height:100%;z-index:1050;transition:left .25s;box-shadow:4px 0 20px rgba(0,0,0,.3)}
+  #side.open{left:0}
+  #main{width:100%;padding:52px 12px 12px}
+  .kgrid{grid-template-columns:repeat(2,1fr)!important}
+  .grid2{grid-template-columns:1fr!important}
+  .kgrid3{grid-template-columns:1fr 1fr!important}
+  .mbox{width:95vw!important;padding:16px!important;max-height:85vh!important}
+  .fr{grid-template-columns:1fr!important}
+  .fr3{grid-template-columns:1fr!important}
+  .sh{font-size:14px!important;margin-top:2px}
+  .btn{padding:7px 12px!important;font-size:12px!important}
+  .btn-add{padding:8px 14px!important}
+  th,td{font-size:10px!important;padding:5px 6px!important}
+  .kv{font-size:18px!important}
+  .toast{bottom:12px;right:12px;font-size:11px}
+}
+</style>
+</head>
+<body>
+<button id="hamburger" onclick="toggleSide()"><span></span><span></span><span></span></button>
+<div id="overlay" onclick="toggleSide()"></div>
+<div id="side">
+  <div id="side-top"><div class="co">아키테크 (ARCHITECK)</div><div class="ti">인사관리 시스템</div><div class="dt">V4.1 · 2026-05-22 · 12시트 전체</div></div>
+  <nav id="nav"></nav>
+  <div id="ft"></div>
+</div>
+<div id="main"></div>
+<div id="modal"><div class="mbox" id="mbox"></div></div>
+<div class="toast" id="toast">✅ 자동 저장됨</div>
+<script>
+const TODAY=new Date();
+const age=b=>{if(!b)return"-";const d=new Date(b);let a=TODAY.getFullYear()-d.getFullYear();const m=TODAY.getMonth()-d.getMonth();if(m<0||(m===0&&TODAY.getDate()<d.getDate()))a--;return a;};
+const tenure=h=>{if(!h)return null;return(TODAY-new Date(h))/(365.25*86400000);};
+const fmtT=t=>{if(t===null)return"-";const y=Math.floor(t),m=Math.floor((t-y)*12);return y+"년 "+m+"개월";};
+const calcAL=t=>{if(t===null||t<0)return 0;if(t<1)return 11;return Math.min(15+Math.floor((t-1)/2),25);};
+const addM=(s,n)=>{const d=new Date(s);d.setMonth(d.getMonth()+n);return d;};
+const dd=d=>Math.floor((d-TODAY)/86400000);
+const pct=(a,b)=>b>0?Math.round(a/b*100):0;
+const won=n=>(n||0).toLocaleString("ko-KR");
+const exD=s=>{if(!s||isNaN(s))return null;return new Date((s-25569)*86400000).toISOString().slice(0,10);};
+const eduSt=r=>{if(r<0)return["재교육필요","br"];if(r<=30)return["임박","bw"];if(r<=60)return["예정","bw"];return["이수완료","bg"];};
+const certSt=(r,p)=>{if(p)return["영구","bi"];if(r<0)return["만료","br"];if(r<=90)return["갱신필요","bw"];if(r<=180)return["갱신예정","bw"];return["유효","bg"];};
+const constG=t=>{if(t>=75)return["특급","bp"];if(t>=65)return["고급","bi"];if(t>=40)return["중급","bg"];if(t>=20)return["초급","bw"];return["미달","bn"];};
+const constNext=t=>{const grades=[[20,"초급"],[40,"중급"],[65,"고급"],[75,"특급"],[999,"MAX"]];for(const[thr,nm]of grades){if(t<thr)return{need:thr-t,next:nm};}return{need:0,next:"MAX"};};
+const kpiG=s=>{if(s>=90)return["S","bp"];if(s>=80)return["A","bi"];if(s>=70)return["B","bg"];if(s>=60)return["C","bw"];return["D","br"];};
+const evalOv=(h1,h2)=>{if(!h1||!h2)return"-";if(h1==="S"&&h2==="S")return"S";if((h1==="S"||h1==="A")&&(h2==="S"||h2==="A"))return"A";if(h1==="C"||h2==="C")return"C";return"B";};
+const gb=g=>({S:"bp",A:"bi",B:"bg",C:"bw",D:"br"}[g]||"bn");
+const stB=s=>s==="재직중"?"bg":s==="휴직"?"bw":"bn";
+const b=(l,c)=>`<span class="bdg ${c}">${l}</span>`;
+const nid=(pfx,arr)=>{const ns=arr.map(x=>parseInt((x.id||"").replace(/[^0-9]/g,""))||0);return pfx+String(Math.max(0,...ns)+1).padStart(3,"0");};
+const eopts=()=>EMP.map(e=>`<option value="${e.id}">${e.id} ${e.name}</option>`).join("");
+const en=id=>{const e=EMP.find(x=>x.id===id);return e?e.name:id;};
+const ed=id=>{const e=EMP.find(x=>x.id===id);return e?e.dept:"-";};
+const SKEY="architeck_hr_v41";
+function saveAll(){
+  try{localStorage.setItem(SKEY,JSON.stringify({EMP,ORGS,PERSONAL,CERTS,EDUS,LEAVE,CONST,SAL,CAREER,KPI,TREND,MEMOS}));}catch(e){console.warn("저장 실패",e);}
+  const t=document.getElementById("toast");t.style.display="block";setTimeout(()=>t.style.display="none",1400);
+  renderFt();
+}
+function renderFt(){document.getElementById("ft").innerHTML=`재직 ${EMP.filter(e=>e.status==="재직중").length}명 / 전체 ${EMP.length}명<br><span style="color:#475569;font-size:8px">변경시 자동저장</span>`;}
+function tbl(heads,rows){if(!rows.length)return`<div class="empty">데이터 없음</div>`;return`<div style="overflow-x:auto"><table><thead><tr>${heads.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table></div>`;}
+function mc(key,ph){ph=ph||"메모...";const v=(MEMOS[key]||"").replace(/"/g,"&quot;");return`<td class="memo-cell"><textarea class="mi" rows="1" placeholder="${ph}" onchange="MEMOS['${key}']=this.value;saveAll()" onfocus="this.rows=2" onblur="this.rows=1">${v}</textarea></td>`;}
+
+const sv=localStorage.getItem(SKEY);const SD=sv?JSON.parse(sv):null;
+
+const DEF_EMP=[
+  {id:"EMP001",name:"방재웅",gender:"남",birth:exD(30614),addr:"",phone:"010-4784-4816",email:"bajw@naver.com",dept:"경영지원 부서",team:"CEO",grade:"대표",edu:"박사",major:"서울과학기술대 건축공학",hireDate:exD(42644),prevCareer:0,researchNo:"11659810",status:"재직중"},
+  {id:"EMP002",name:"임영준",gender:"남",birth:exD(31492),addr:"경기도 양평군 용문면 두담길10 103동 802호",phone:"010-8831-2694",email:"yohast@naver.com",dept:"양평_연구팀",team:"연구팀",grade:"실장",edu:"석사",major:"한양대 건설관리학",hireDate:"2018-09-01",prevCareer:2,researchNo:"13170851",status:"재직중"},
+  {id:"EMP003",name:"유한나",gender:"여",birth:exD(32981),addr:"",phone:"010-9948-9270",email:"hnyou771@gmail.com",dept:"양평_연구팀",team:"연구팀",grade:"이사",edu:"학사",major:"중어중문학",hireDate:exD(45505),prevCareer:8,researchNo:"13282024",status:"재직중"},
+  {id:"EMP004",name:"어진선",gender:"여",birth:exD(33115),addr:"",phone:"010-8818-7056",email:"jung.sj@company.com",dept:"서울_연구팀",team:"연구팀",grade:"책임연구원",edu:"석사",major:"연세대 건축공학",hireDate:exD(46146),prevCareer:1,researchNo:"11508494",status:"재직중"},
+  {id:"EMP005",name:"최지혜",gender:"여",birth:exD(33635),addr:"",phone:"010-2376-9844",email:"choi.jh@company.com",dept:"서울_연구팀",team:"연구팀",grade:"책임연구원",edu:"석사",major:"경북대 화학과",hireDate:exD(46143),prevCareer:7,researchNo:"11635008",status:"재직중"},
+  {id:"EMP006",name:"황선영",gender:"여",birth:exD(34408),addr:"경기도 구리시 이문안로139번길 10",phone:"010-2947-3793",email:"",dept:"서울_연구팀",team:"연구팀",grade:"전임연구원",edu:"학사",major:"경제및국제무역",hireDate:exD(46146),prevCareer:0,researchNo:"13238449",status:"재직중"},
+  {id:"EMP007",name:"유재협",gender:"남",birth:exD(34423),addr:"",phone:"010-4032-9270",email:"",dept:"양평_연구팀",team:"연구팀",grade:"과장",edu:"학사",major:"경영학",hireDate:exD(45962),prevCareer:0,researchNo:"13087248",status:"재직중"},
+  {id:"EMP008",name:"박수한",gender:"남",birth:exD(34981),addr:"서울특별시 동대문구 이문동 77-20 502호",phone:"010-2811-9087",email:"p_ssu1@naver.com",dept:"서울_설계팀",team:"설계팀",grade:"사원",edu:"학사",major:"삼육대 건축학",hireDate:exD(45722),prevCareer:0,researchNo:"13488706",status:"재직중"},
+  {id:"EMP009",name:"이동우",gender:"남",birth:exD(30642),addr:"",phone:"010-7793-1359",email:"styled22@gmail.com",dept:"서울_설계팀",team:"설계팀",grade:"실장",edu:"학사",major:"경기대 건축학",hireDate:"2015-03-02",prevCareer:5,researchNo:"13151284",status:"재직중"},
+];
+const DEF_ORGS=[
+  {id:"O01",hqCode:"HQ01",hqName:"경영지원팀",teamCode:"CEO",teamName:"CEO",leader:"방재웅",mainWork:"경영전략·의사결정·대외활동"},
+  {id:"O02",hqCode:"HQ02",hqName:"양평_연구팀",teamCode:"R01",teamName:"연구팀(양평)",leader:"임영준",mainWork:"건설기술 연구·개발·현장 지원"},
+  {id:"O03",hqCode:"HQ03",hqName:"서울_연구팀",teamCode:"R02",teamName:"연구팀(서울)",leader:"어진선",mainWork:"설계연구·BIM·기술분석"},
+  {id:"O04",hqCode:"HQ04",hqName:"서울_설계팀",teamCode:"D01",teamName:"설계팀(서울)",leader:"이동우",mainWork:"건축·구조 설계·도면 작성"},
+];
+const DEF_PERSONAL=[
+  {id:"P001",empId:"EMP001",contract:"정규직",hi:"",np:"",ei:"",wi:"",ins4:"가입",emergency:"010-0000-1111",relation:"배우자",spouse:"유",children:2,dependents:4,military:"현역만기제대",disability:"없음",special:"-"},
+  {id:"P002",empId:"EMP002",contract:"정규직",hi:"",np:"",ei:"",wi:"",ins4:"가입",emergency:"010-0000-2222",relation:"부모",spouse:"무",children:0,dependents:1,military:"비대상",disability:"없음",special:"-"},
+  {id:"P003",empId:"EMP003",contract:"정규직",hi:"",np:"",ei:"",wi:"",ins4:"가입",emergency:"010-0000-3333",relation:"배우자",spouse:"유",children:3,dependents:5,military:"현역만기제대",disability:"없음",special:"-"},
+  {id:"P004",empId:"EMP004",contract:"정규직",hi:"",np:"",ei:"",wi:"",ins4:"가입",emergency:"010-0000-4444",relation:"부모",spouse:"무",children:0,dependents:1,military:"비대상",disability:"없음",special:"-"},
+  {id:"P005",empId:"EMP005",contract:"정규직",hi:"",np:"",ei:"",wi:"",ins4:"가입",emergency:"010-0000-5555",relation:"배우자",spouse:"유",children:2,dependents:4,military:"현역만기제대",disability:"없음",special:"보훈가족"},
+  {id:"P006",empId:"EMP006",contract:"정규직",hi:"",np:"",ei:"",wi:"",ins4:"가입",emergency:"-",relation:"-",spouse:"무",children:0,dependents:0,military:"비대상",disability:"없음",special:"-"},
+  {id:"P007",empId:"EMP007",contract:"정규직",hi:"",np:"",ei:"",wi:"",ins4:"가입",emergency:"-",relation:"-",spouse:"무",children:0,dependents:0,military:"-",disability:"없음",special:"-"},
+  {id:"P008",empId:"EMP008",contract:"정규직",hi:"",np:"",ei:"",wi:"",ins4:"가입",emergency:"-",relation:"-",spouse:"무",children:0,dependents:0,military:"-",disability:"없음",special:"-"},
+  {id:"P009",empId:"EMP009",contract:"정규직",hi:"",np:"",ei:"",wi:"",ins4:"가입",emergency:"-",relation:"배우자",spouse:"유",children:1,dependents:3,military:"현역만기제대",disability:"없음",special:"-"},
+];
+const DEF_CERTS=[
+  {id:"C001",empId:"EMP001",cert:"건축사",type:"국가면허",org:"대한건축사협회",certNo:"19438",acquireDate:exD(42368),expireDate:"",vy:99,note:""},
+  {id:"C002",empId:"EMP001",cert:"건축기사",type:"국가기술자격",org:"한국산업인력공단",certNo:"09202101462Y",acquireDate:exD(40042),expireDate:"",vy:99,note:""},
+  {id:"C003",empId:"EMP001",cert:"건설안전기사",type:"국가기술자격",org:"한국산업인력공단",certNo:"12201101091F",acquireDate:exD(41061),expireDate:"",vy:99,note:""},
+  {id:"C004",empId:"EMP001",cert:"조경기능사",type:"국가기술자격",org:"한국산업인력공단",certNo:"12401240255V",acquireDate:exD(41026),expireDate:"",vy:99,note:""},
+  {id:"C005",empId:"EMP002",cert:"건축사",type:"국가면허",org:"대한건축사협회",certNo:"",acquireDate:"",expireDate:"",vy:99,note:""},
+];
+const DEF_EDUS=[
+  {id:"E001",empId:"EMP001",type:"법정의무",edu:"산업안전보건교육(분기)",org:"안전보건공단",h:6,cd:"2025-12-15",vm:3,note:"분기별 정기교육"},
+  {id:"E002",empId:"EMP001",type:"법정의무",edu:"성희롱예방교육",org:"사내강사",h:1,cd:"2025-08-20",vm:12,note:"연 1회 필수"},
+  {id:"E003",empId:"EMP001",type:"법정의무",edu:"개인정보보호교육",org:"KISA",h:2,cd:"2025-06-10",vm:12,note:"연 1회 필수"},
+  {id:"E004",empId:"EMP001",type:"직무교육",edu:"PMP 보수교육(PDU)",org:"PMI Korea",h:35,cd:"2024-06-10",vm:36,note:"3년간 60PDU"},
+  {id:"E005",empId:"EMP002",type:"법정의무",edu:"산업안전보건교육(분기)",org:"안전보건공단",h:3,cd:"2026-01-20",vm:3,note:"사무직 분기 3h"},
+  {id:"E006",empId:"EMP002",type:"법정의무",edu:"성희롱예방교육",org:"사내강사",h:1,cd:"2025-08-20",vm:12,note:"연 1회 필수"},
+  {id:"E007",empId:"EMP002",type:"법정의무",edu:"장애인인식개선",org:"한국장애인고용공단",h:1,cd:"2025-04-15",vm:12,note:"연 1회 필수"},
+  {id:"E008",empId:"EMP002",type:"직무교육",edu:"노무관리 실무",org:"HRD KOREA",h:16,cd:"2024-11-05",vm:24,note:""},
+  {id:"E009",empId:"EMP003",type:"법정의무",edu:"관리감독자 안전보건교육",org:"안전보건공단",h:16,cd:"2024-09-10",vm:12,note:"연 16h 필수"},
+  {id:"E010",empId:"EMP003",type:"법정의무",edu:"산업안전보건교육(분기)",org:"안전보건공단",h:6,cd:"2025-11-25",vm:3,note:"분기별 정기교육"},
+  {id:"E011",empId:"EMP003",type:"직무교육",edu:"건설기술인 정기교육",org:"건설기술교육원",h:35,cd:"2023-05-15",vm:36,note:"3년 주기"},
+  {id:"E012",empId:"EMP004",type:"법정의무",edu:"산업안전보건교육(분기)",org:"안전보건공단",h:3,cd:"2025-12-05",vm:3,note:"사무직 분기 3h"},
+  {id:"E013",empId:"EMP004",type:"법정의무",edu:"성희롱예방교육",org:"사내강사",h:1,cd:"2024-08-20",vm:12,note:"연 1회 필수"},
+  {id:"E014",empId:"EMP004",type:"직무교육",edu:"건설기술인 최초교육",org:"건설기술교육원",h:35,cd:"2020-10-15",vm:36,note:"최초교육 1회"},
+  {id:"E015",empId:"EMP005",type:"법정의무",edu:"관리감독자 안전보건교육",org:"안전보건공단",h:16,cd:"2025-03-20",vm:12,note:"연 16h 필수"},
+  {id:"E016",empId:"EMP005",type:"직무교육",edu:"건설기술인 정기교육",org:"건설기술교육원",h:35,cd:"2024-07-10",vm:36,note:"3년 주기"},
+];
+const DEF_LEAVE=[
+  {id:"L001",empId:"EMP001",carry:0,used:0,half:0,sp:3,sick:1,off:0,note:"소멸주의"},
+  {id:"L002",empId:"EMP002",carry:2,used:0,half:2,sp:0,sick:2,off:1,note:"소멸주의"},
+  {id:"L003",empId:"EMP003",carry:0,used:0,half:0,sp:5,sick:0,off:0,note:"결혼 경조 5일"},
+  {id:"L004",empId:"EMP004",carry:1,used:0,half:0,sp:0,sick:3,off:0,note:""},
+  {id:"L005",empId:"EMP005",carry:0,used:0,half:4,sp:2,sick:0,off:1,note:"부친상 경조 2일"},
+  {id:"L006",empId:"EMP006",carry:0,used:0,half:0,sp:0,sick:0,off:0,note:""},
+  {id:"L007",empId:"EMP007",carry:3,used:0,half:0,sp:0,sick:0,off:0,note:"소멸주의"},
+  {id:"L008",empId:"EMP008",carry:0,used:0,half:0,sp:0,sick:0,off:0,note:"소멸주의"},
+  {id:"L009",empId:"EMP009",carry:0,used:0,half:0,sp:0,sick:0,off:0,note:""},
+];
+const DEF_CONST=[
+  {id:"CG01",empId:"EMP001",field:"건축",qual:"건축사",qs:40,eduS:"박사",es:25,career:9,cs:27,tot:92,note:"특급 유지"},
+  {id:"CG02",empId:"EMP002",field:"건축",qual:"건축사",qs:40,eduS:"석사",es:20,career:7,cs:21,tot:81,note:"특급 유지"},
+  {id:"CG03",empId:"EMP003",field:"건축",qual:"건축시공기술사",qs:40,eduS:"학사",es:15,career:1,cs:3,tot:58,note:"중급"},
+  {id:"CG04",empId:"EMP004",field:"건축",qual:"건축기사",qs:20,eduS:"석사",es:20,career:0,cs:0,tot:40,note:"중급"},
+  {id:"CG05",empId:"EMP005",field:"토목",qual:"토목시공기술사",qs:40,eduS:"석사",es:20,career:0,cs:0,tot:60,note:"중급"},
+  {id:"CG06",empId:"EMP006",field:"-",qual:"-",qs:0,eduS:"학사",es:15,career:0,cs:0,tot:15,note:""},
+  {id:"CG07",empId:"EMP007",field:"-",qual:"-",qs:0,eduS:"학사",es:15,career:0,cs:0,tot:15,note:""},
+  {id:"CG08",empId:"EMP008",field:"건축",qual:"-",qs:0,eduS:"학사",es:15,career:1,cs:3,tot:18,note:""},
+  {id:"CG09",empId:"EMP009",field:"-",qual:"-",qs:0,eduS:"학사",es:15,career:11,cs:33,tot:48,note:"중급"},
+];
+const DEF_SAL=[
+  {id:"S001",empId:"EMP001",ann:4800,base:4000000,pa:0,ta:200000,qa:100000,meal:100000,trans:100000,h1:"A",h2:"A",aw:2,dis:0,history:"2024 우수사원상"},
+  {id:"S002",empId:"EMP002",ann:3600,base:3000000,pa:0,ta:200000,qa:0,meal:100000,trans:100000,h1:"A",h2:"B",aw:1,dis:0,history:"2025 개근상"},
+  {id:"S003",empId:"EMP003",ann:7200,base:6000000,pa:0,ta:0,qa:200000,meal:100000,trans:100000,h1:"S",h2:"A",aw:3,dis:0,history:"2023 최우수팀장상"},
+  {id:"S004",empId:"EMP004",ann:5500,base:4583333,pa:500000,ta:200000,qa:0,meal:100000,trans:100000,h1:"B",h2:"A",aw:0,dis:1,history:"2023 경징계 1회"},
+  {id:"S005",empId:"EMP005",ann:5000,base:4166667,pa:500000,ta:200000,qa:100000,meal:100000,trans:100000,h1:"A",h2:"A",aw:2,dis:1,history:"2024 우수상 / 2023 견책"},
+  {id:"S006",empId:"EMP006",ann:4100,base:3416667,pa:0,ta:200000,qa:0,meal:100000,trans:100000,h1:"",h2:"",aw:0,dis:0,history:""},
+  {id:"S007",empId:"EMP007",ann:4200,base:3500000,pa:200000,ta:0,qa:0,meal:100000,trans:100000,h1:"",h2:"",aw:0,dis:0,history:""},
+  {id:"S008",empId:"EMP008",ann:2500,base:2083333,pa:0,ta:0,qa:0,meal:100000,trans:50000,h1:"",h2:"",aw:0,dis:0,history:""},
+  {id:"S009",empId:"EMP009",ann:4800,base:4000000,pa:0,ta:200000,qa:0,meal:100000,trans:100000,h1:"",h2:"",aw:0,dis:0,history:""},
+];
+const DEF_CAREER=[
+  {id:"CAR01",empId:"EMP001",year:2024,cat:"프로젝트",subType:"토목공사",title:"서울 ○○지구 도로개설공사",org:"사내",period:"2024-03~2024-12",role:"현장소장",result:"공기 5% 단축",score:25},
+  {id:"CAR02",empId:"EMP001",year:2024,cat:"수상",subType:"사내포상",title:"우수사원상",org:"본사",period:"2024-12",role:"본인",result:"본부장 추천",score:15},
+  {id:"CAR03",empId:"EMP001",year:2024,cat:"자격취득",subType:"국가기술자격",title:"건설안전기사 취득",org:"한국산업인력공단",period:"2024-11",role:"본인",result:"합격",score:10},
+  {id:"CAR04",empId:"EMP001",year:2023,cat:"프로젝트",subType:"토목공사",title:"인천 ○○대교 보수공사",org:"사내",period:"2023-04~2023-11",role:"부소장",result:"안전무사고",score:20},
+  {id:"CAR05",empId:"EMP001",year:2023,cat:"교육이수",subType:"직무교육",title:"건설기술인 정기교육",org:"건설기술교육원",period:"2023-05",role:"본인",result:"수료 35h",score:5},
+  {id:"CAR06",empId:"EMP002",year:2025,cat:"수상",subType:"사내포상",title:"개근상",org:"본사",period:"2025-01",role:"본인",result:"무결근",score:10},
+  {id:"CAR07",empId:"EMP002",year:2024,cat:"프로젝트",subType:"사내혁신",title:"인사관리시스템 구축",org:"사내",period:"2024-06~2024-12",role:"PM",result:"시스템 오픈",score:25},
+  {id:"CAR08",empId:"EMP002",year:2024,cat:"교육이수",subType:"직무교육",title:"노무관리 실무",org:"HRD KOREA",period:"2024-11",role:"본인",result:"수료 16h",score:8},
+  {id:"CAR09",empId:"EMP003",year:2024,cat:"프로젝트",subType:"건축공사",title:"경기 ○○신축공사",org:"사내",period:"2024-01~2024-12",role:"팀장",result:"수주 130%",score:30},
+  {id:"CAR10",empId:"EMP003",year:2024,cat:"연구참여",subType:"학술발표",title:"건축구조 안전성 연구",org:"대한건축학회",period:"2024-09",role:"공동저자",result:"학회지 게재",score:20},
+  {id:"CAR11",empId:"EMP003",year:2023,cat:"수상",subType:"사내포상",title:"최우수팀장상",org:"본사",period:"2023-12",role:"본인",result:"대표이사 표창",score:25},
+  {id:"CAR12",empId:"EMP003",year:2023,cat:"특허/기고",subType:"실용신안",title:"거푸집 결합장치",org:"특허청",period:"2023-08",role:"발명자",result:"등록",score:30},
+  {id:"CAR13",empId:"EMP003",year:2022,cat:"자격취득",subType:"국가기술자격",title:"건축시공기술사 갱신교육",org:"건설기술교육원",period:"2022-05",role:"본인",result:"수료",score:5},
+  {id:"CAR14",empId:"EMP004",year:2025,cat:"자격취득",subType:"민간자격",title:"Revit Architecture 인증",org:"Autodesk",period:"2025-03",role:"본인",result:"합격",score:8},
+  {id:"CAR15",empId:"EMP004",year:2024,cat:"프로젝트",subType:"설계",title:"서울 ○○복합시설 기본설계",org:"사내",period:"2024-05~2024-10",role:"담당설계자",result:"설계완료",score:15},
+  {id:"CAR16",empId:"EMP004",year:2024,cat:"교육이수",subType:"직무교육",title:"BIM 전문가 과정",org:"한국BIM학회",period:"2024-08",role:"본인",result:"수료 40h",score:8},
+  {id:"CAR17",empId:"EMP005",year:2024,cat:"프로젝트",subType:"토목공사",title:"부산 ○○하수처리장",org:"사내",period:"2024-02~2024-12",role:"공사부장",result:"공정 단축 8%",score:25},
+  {id:"CAR18",empId:"EMP005",year:2024,cat:"수상",subType:"사내포상",title:"우수상",org:"본사",period:"2024-12",role:"본인",result:"공정단축",score:15},
+  {id:"CAR19",empId:"EMP005",year:2023,cat:"연구참여",subType:"학술발표",title:"시공효율화 연구",org:"대한토목학회",period:"2023-10",role:"발표자",result:"학회발표",score:15},
+  {id:"CAR20",empId:"EMP005",year:2023,cat:"자격취득",subType:"국가기술자격",title:"토목시공기술사 보수교육",org:"건설기술교육원",period:"2023-04",role:"본인",result:"수료",score:5},
+];
+const DEF_KPI=[
+  {id:"K001",empId:"EMP001",perf:92,cs:97.5,dev:80,comp:85,att:88,note:"특급 승급가능"},
+  {id:"K002",empId:"EMP002",perf:82,cs:55.9,dev:78,comp:85,att:80,note:"인사시스템 PM"},
+  {id:"K003",empId:"EMP003",perf:95,cs:100,dev:88,comp:92,att:93,note:"대표이사 표창"},
+  {id:"K004",empId:"EMP004",perf:78,cs:40.3,dev:85,comp:72,att:80,note:"신입 우수"},
+  {id:"K005",empId:"EMP005",perf:88,cs:78,dev:82,comp:85,att:75,note:"공정단축/경징계"},
+  {id:"K006",empId:"EMP006",perf:0,cs:0,dev:0,comp:0,att:0,note:""},
+  {id:"K007",empId:"EMP007",perf:0,cs:0,dev:0,comp:0,att:0,note:""},
+  {id:"K008",empId:"EMP008",perf:0,cs:0,dev:0,comp:0,att:0,note:""},
+  {id:"K009",empId:"EMP009",perf:0,cs:0,dev:0,comp:0,att:0,note:""},
+];
+const DEF_TREND=[
+  {id:"T001",empId:"EMP001",y:[4500,4800,5100,5500,4800]},
+  {id:"T002",empId:"EMP002",y:[3300,3500,3700,3950,3600]},
+  {id:"T003",empId:"EMP003",y:[6800,7200,7700,8200,7200]},
+  {id:"T004",empId:"EMP004",y:[0,0,3250,4500,5500]},
+  {id:"T005",empId:"EMP005",y:[0,0,4500,4900,5000]},
+  {id:"T006",empId:"EMP006",y:[0,0,0,3900,4100]},
+  {id:"T007",empId:"EMP007",y:[0,0,3700,4000,4200]},
+  {id:"T008",empId:"EMP008",y:[0,0,0,2300,2500]},
+  {id:"T009",empId:"EMP009",y:[4500,4800,5100,5500,4800]},
+];
+
+let EMP=SD?SD.EMP:JSON.parse(JSON.stringify(DEF_EMP));
+let ORGS=SD?SD.ORGS:JSON.parse(JSON.stringify(DEF_ORGS));
+let PERSONAL=SD?SD.PERSONAL:JSON.parse(JSON.stringify(DEF_PERSONAL));
+let CERTS=SD?SD.CERTS:JSON.parse(JSON.stringify(DEF_CERTS));
+let EDUS=SD?SD.EDUS:JSON.parse(JSON.stringify(DEF_EDUS));
+let LEAVE=SD?SD.LEAVE:JSON.parse(JSON.stringify(DEF_LEAVE));
+let CONST=SD?SD.CONST:JSON.parse(JSON.stringify(DEF_CONST));
+let SAL=SD?SD.SAL:JSON.parse(JSON.stringify(DEF_SAL));
+let CAREER=SD?SD.CAREER:JSON.parse(JSON.stringify(DEF_CAREER));
+let KPI=SD?SD.KPI:JSON.parse(JSON.stringify(DEF_KPI));
+let TREND=SD?SD.TREND:JSON.parse(JSON.stringify(DEF_TREND));
+let MEMOS=SD?SD.MEMOS:{};
+
+const ce=e=>{const t=tenure(e.hireDate);const a=calcAL(t);const tc=t!==null?Math.round((Math.floor(t*10)/10+e.prevCareer)*10)/10:e.prevCareer;return{...e,age:age(e.birth),tf:fmtT(t),al:a,tc};};
+let tab="dash",sf="전체";
+const fe=()=>(sf==="전체"?EMP:EMP.filter(e=>e.status===sf)).map(ce);
+const getL=(id,al)=>{const l=LEAVE.find(x=>x.empId===id)||{carry:0,used:0,half:0,sp:0,sick:0,off:0,note:""};const total=al+(l.carry||0);return{...l,al,total,rem:total-l.used-(l.half||0)*0.5,rate:pct(l.used,total)};};
+const calcK=k=>{const w=Math.round((k.perf*.3+k.cs*.2+k.dev*.15+k.comp*.2+k.att*.15)*100)/100;return{...k,w,g:kpiG(w)};};
+const calcS=s=>{const tot=(s.base||0)+(s.pa||0)+(s.ta||0)+(s.qa||0)+(s.meal||0)+(s.trans||0);const ov=evalOv(s.h1,s.h2);return{...s,tot,ov,raise:{S:8,A:6,B:4,C:2}[ov]||"-"};};
+const carTot=id=>CAREER.filter(x=>x.empId===id).reduce((s,x)=>s+(x.score||0),0);
+const catBdg={"프로젝트":"bg","수상":"bp","자격취득":"bi","교육이수":"bw","연구참여":"br","특허/기고":"bn"};
+
+function openM(h){document.getElementById("mbox").innerHTML=h;document.getElementById("modal").classList.add("show");}
+function closeM(){document.getElementById("modal").classList.remove("show");}
+document.getElementById("modal").addEventListener("click",e=>{if(e.target===document.getElementById("modal"))closeM();});
+const mH=t=>`<div class="mh"><span>${t}</span><button onclick="closeM()">✕</button></div>`;
+const mF=fn=>`<div class="mf"><button class="btn" onclick="closeM()">취소</button><button class="btn btn-add" onclick="${fn}()">저장</button></div>`;
+function delRow(arr,id){const i=arr.findIndex(x=>x.id===id);if(i>-1&&confirm("삭제할까요?")){arr.splice(i,1);saveAll();render();}}
+function resetAll(){if(!confirm("모든 데이터를 초기값으로 되돌릴까요?"))return;localStorage.removeItem(SKEY);location.reload();}
+
+function v(id){return document.getElementById(id)?document.getElementById(id).value:"";}
+function iv(id){return parseInt(v(id))||0;}
+function fv(id){return parseFloat(v(id))||0;}
+
+// ── 직원 ──
+function addEmp(){
+  openM(mH("직원 추가")+`
+  <div class="fr"><div class="fg"><label>재직상태</label><select id="fst"><option>재직중</option><option>휴직</option><option>퇴직</option></select></div><div class="fg"><label>성별</label><select id="fgd"><option>남</option><option>여</option></select></div></div>
+  <div class="fr"><div class="fg"><label>성명 *</label><input id="fnm"></div><div class="fg"><label>생년월일</label><input id="fbt" type="date"></div></div>
+  <div class="fg full" style="margin-bottom:9px"><label>주소</label><input id="fad" placeholder="주소 입력"></div>
+  <div class="fr"><div class="fg"><label>부서</label><input id="fdp" placeholder="서울_연구팀"></div><div class="fg"><label>팀</label><input id="ftm"></div></div>
+  <div class="fr"><div class="fg"><label>직급</label><select id="fgr"><option>사원</option><option>전임연구원</option><option>책임연구원</option><option>주임</option><option>대리</option><option>과장</option><option>차장</option><option>부장</option><option>실장</option><option>이사</option><option>대표</option></select></div><div class="fg"><label>입사일</label><input id="fhd" type="date"></div></div>
+  <div class="fr"><div class="fg"><label>최종학력</label><select id="fed"><option value="">-</option><option>고졸</option><option>전문학사</option><option>학사</option><option>석사</option><option>박사</option></select></div><div class="fg"><label>전공</label><input id="fmj"></div></div>
+  <div class="fr"><div class="fg"><label>이전경력(년)</label><input id="fpc" type="number" value="0" min="0"></div><div class="fg"><label>연락처</label><input id="fph"></div></div>
+  <div class="fr"><div class="fg"><label>이메일</label><input id="fem"></div><div class="fg"><label>연구자번호</label><input id="frn"></div></div>
+  `+mF("_saveEmp"));
+}
+window._saveEmp=()=>{
+  const nm=v("fnm").trim();if(!nm){alert("성명 필수");return;}
+  const id=nid("EMP",EMP);
+  EMP.push({id,name:nm,gender:v("fgd"),birth:v("fbt"),addr:v("fad"),dept:v("fdp"),team:v("ftm"),grade:v("fgr"),edu:v("fed"),major:v("fmj"),hireDate:v("fhd"),prevCareer:iv("fpc"),phone:v("fph"),email:v("fem"),researchNo:v("frn"),status:v("fst")});
+  KPI.push({id:nid("K",KPI),empId:id,perf:0,cs:0,dev:0,comp:0,att:0,note:""});
+  SAL.push({id:nid("S",SAL),empId:id,ann:0,base:0,pa:0,ta:0,qa:0,meal:0,trans:0,h1:"",h2:"",aw:0,dis:0,history:""});
+  LEAVE.push({id:nid("L",LEAVE),empId:id,carry:0,used:0,half:0,sp:0,sick:0,off:0,note:""});
+  TREND.push({id:nid("T",TREND),empId:id,y:[0,0,0,0,0]});
+  closeM();saveAll();render();
+};
+
+// ── 자격증 ──
+function addCert(){
+  openM(mH("자격증 추가")+`
+  <div class="fr"><div class="fg"><label>직원 *</label><select id="ceid">${eopts()}</select></div><div class="fg"><label>자격구분</label><select id="cty"><option>국가면허</option><option>국가기술자격</option><option>민간자격</option><option>국제자격</option></select></div></div>
+  <div class="fr"><div class="fg"><label>자격증명 *</label><input id="cnm"></div><div class="fg"><label>발급기관</label><input id="cog"></div></div>
+  <div class="fr"><div class="fg"><label>자격번호</label><input id="cno"></div><div class="fg"><label>취득일</label><input id="cad" type="date"></div></div>
+  <div class="fr"><div class="fg"><label>유효기간(년, 영구=99)</label><input id="cvy" type="number" value="99"></div><div class="fg"><label>만료일</label><input id="ced" type="date"></div></div>
+  <div class="fg full" style="margin-bottom:9px"><label>비고</label><input id="cnote" placeholder="갱신 조건, 특이사항 등"></div>
+  `+mF("_saveCert"));
+}
+window._saveCert=()=>{
+  const eid=v("ceid"),nm=v("cnm").trim();if(!nm){alert("자격증명 필수");return;}
+  CERTS.push({id:nid("C",CERTS),empId:eid,cert:nm,type:v("cty"),org:v("cog"),certNo:v("cno"),acquireDate:v("cad"),expireDate:v("ced"),vy:iv("cvy")||99,note:v("cnote")});
+  closeM();saveAll();render();
+};
+
+// ── 교육 ──
+function addEdu(){
+  openM(mH("교육이수 추가")+`
+  <div class="fr"><div class="fg"><label>직원 *</label><select id="eeid">${eopts()}</select></div><div class="fg"><label>구분</label><select id="ety"><option>법정의무</option><option>직무교육</option><option>사내교육</option><option>외부연수</option></select></div></div>
+  <div class="fg full" style="margin-bottom:9px"><label>교육명 *</label><input id="enm"></div>
+  <div class="fr"><div class="fg"><label>교육기관</label><input id="eog"></div><div class="fg"><label>교육시간(h)</label><input id="eh" type="number" value="1" min="1"></div></div>
+  <div class="fr"><div class="fg"><label>이수일 *</label><input id="ecd" type="date"></div><div class="fg"><label>유효기간(개월)</label><input id="evm" type="number" value="12" min="1"></div></div>
+  <div class="fg full" style="margin-bottom:9px"><label>비고</label><input id="enote" placeholder="필수여부, 특이사항 등"></div>
+  `+mF("_saveEdu"));
+}
+window._saveEdu=()=>{
+  const eid=v("eeid"),nm=v("enm").trim(),cd=v("ecd");if(!nm||!cd){alert("교육명·이수일 필수");return;}
+  EDUS.push({id:nid("E",EDUS),empId:eid,type:v("ety"),edu:nm,org:v("eog"),h:iv("eh")||1,cd,vm:iv("evm")||12,note:v("enote")});
+  closeM();saveAll();render();
+};
+
+// ── 연차 ──
+function editLeave(empId){
+  const l=LEAVE.find(x=>x.empId===empId)||{carry:0,used:0,half:0,sp:0,sick:0,off:0,note:""};
+  openM(mH(`연차 편집 — ${en(empId)}`)+`
+  <div class="fr"><div class="fg"><label>전년이월(일)</label><input id="lcy" type="number" value="${l.carry||0}" min="0"></div><div class="fg"><label>사용연차(일)</label><input id="lus" type="number" value="${l.used||0}" min="0"></div></div>
+  <div class="fr"><div class="fg"><label>반차횟수(회) — 0.5일씩</label><input id="lhf" type="number" value="${l.half||0}" min="0"></div><div class="fg"><label>경조사(일)</label><input id="lsp" type="number" value="${l.sp||0}" min="0"></div></div>
+  <div class="fr"><div class="fg"><label>병가(일)</label><input id="lsk" type="number" value="${l.sick||0}" min="0"></div><div class="fg"><label>공가(일)</label><input id="lof" type="number" value="${l.off||0}" min="0"></div></div>
+  <div class="fg" style="margin-bottom:9px"><label>비고</label><input id="lnt" value="${l.note||""}"></div>
+  `+mF(`_saveL_${empId}`));
+  window[`_saveL_${empId}`]=()=>{
+    const data={id:"",empId,carry:iv("lcy"),used:iv("lus"),half:iv("lhf"),sp:iv("lsp"),sick:iv("lsk"),off:iv("lof"),note:v("lnt")};
+    const i=LEAVE.findIndex(x=>x.empId===empId);if(i>-1){data.id=LEAVE[i].id;LEAVE[i]=data;}else{data.id=nid("L",LEAVE);LEAVE.push(data);}
+    closeM();saveAll();render();
+  };
+}
+
+// ── 인적사항 ──
+function editPersonal(empId){
+  const p=PERSONAL.find(x=>x.empId===empId)||{contract:"정규직",hi:"",np:"",ei:"",wi:"",ins4:"가입",emergency:"",relation:"",spouse:"무",children:0,dependents:0,military:"",disability:"없음",special:"-"};
+  openM(mH(`인적사항 — ${en(empId)}`)+`
+  <div class="fr"><div class="fg"><label>계약형태</label><select id="pct"><option>정규직</option><option>계약직</option><option>파견직</option><option>프리랜서</option></select></div><div class="fg"><label>4대보험</label><select id="pins"><option>가입</option><option>미가입</option><option>일부가입</option></select></div></div>
+  <div class="sdiv">4대보험 번호</div>
+  <div class="fr"><div class="fg"><label>건강보험번호</label><input id="phi" value="${p.hi||""}"></div><div class="fg"><label>국민연금번호</label><input id="pnp" value="${p.np||""}"></div></div>
+  <div class="fr"><div class="fg"><label>고용보험번호</label><input id="pei" value="${p.ei||""}"></div><div class="fg"><label>산재보험번호</label><input id="pwi" value="${p.wi||""}"></div></div>
+  <div class="sdiv">가족사항</div>
+  <div class="fr"><div class="fg"><label>비상연락처</label><input id="pem" value="${p.emergency||""}"></div><div class="fg"><label>관계</label><input id="prl" value="${p.relation||""}"></div></div>
+  <div class="fr3"><div class="fg"><label>배우자</label><select id="psp"><option>무</option><option>유</option></select></div><div class="fg"><label>자녀수</label><input id="pch" type="number" value="${p.children||0}" min="0"></div><div class="fg"><label>부양가족수</label><input id="pdp" type="number" value="${p.dependents||0}" min="0"></div></div>
+  <div class="fr"><div class="fg"><label>병역</label><input id="pml" value="${p.military||""}"></div><div class="fg"><label>장애</label><select id="pdb"><option>없음</option><option>있음</option></select></div></div>
+  <div class="fg" style="margin-bottom:9px"><label>특이사항</label><input id="psp2" value="${p.special||"-"}"></div>
+  `+mF(`_saveP_${empId}`));
+  document.getElementById("pct").value=p.contract||"정규직";
+  document.getElementById("pins").value=p.ins4||"가입";
+  document.getElementById("psp").value=p.spouse||"무";
+  document.getElementById("pdb").value=p.disability||"없음";
+  window[`_saveP_${empId}`]=()=>{
+    const data={id:"",empId,contract:v("pct"),ins4:v("pins"),hi:v("phi"),np:v("pnp"),ei:v("pei"),wi:v("pwi"),emergency:v("pem"),relation:v("prl"),spouse:v("psp"),children:iv("pch"),dependents:iv("pdp"),military:v("pml"),disability:v("pdb"),special:v("psp2")};
+    const i=PERSONAL.findIndex(x=>x.empId===empId);if(i>-1){data.id=PERSONAL[i].id;PERSONAL[i]=data;}else{data.id=nid("P",PERSONAL);PERSONAL.push(data);}
+    closeM();saveAll();render();
+  };
+}
+
+// ── 건설기술자등급 ──
+function editConst(empId){
+  const c=CONST.find(x=>x.empId===empId)||{field:"-",qual:"-",qs:0,eduS:"학사",es:15,career:0,cs:0,tot:0,note:""};
+  openM(mH(`건설기술자등급 — ${en(empId)}`)+`
+  <div class="fr"><div class="fg"><label>전문분야</label><select id="cgfd"><option>건축</option><option>토목</option><option>기계</option><option value="-">기타/-</option></select></div><div class="fg"><label>최고자격</label><input id="cgql" value="${c.qual}"></div></div>
+  <div class="fr"><div class="fg"><label>자격점수 (기술사40·기사20·산업기사15)</label><input id="cgqs" type="number" value="${c.qs}" min="0" max="40"></div><div class="fg"><label>학력</label><select id="cges"><option value="박사|25">박사(25점)</option><option value="석사|20">석사(20점)</option><option value="학사|15">학사(15점)</option><option value="전문학사|10">전문학사(10점)</option></select></div></div>
+  <div class="fr"><div class="fg"><label>관련경력(년)</label><input id="cgca" type="number" value="${c.career}" min="0"></div></div>
+  <div class="fg full" style="margin-bottom:9px"><label>비고</label><input id="cgnote" value="${c.note||""}"></div>
+  <div class="tip">경력점수=MIN(경력×3,40) · 총점=자격+학력+경력 · 특급≥75 / 고급65~74 / 중급40~64 / 초급20~39</div>
+  `+mF(`_saveCG_${empId}`));
+  document.getElementById("cgfd").value=c.field||"-";
+  document.getElementById("cges").value=`${c.eduS||"학사"}|${c.es||15}`;
+  window[`_saveCG_${empId}`]=()=>{
+    const er=(v("cges")||"학사|15").split("|");
+    const car=iv("cgca");const cs=Math.min(car*3,40);const qs=iv("cgqs");const es=parseInt(er[1])||15;
+    const data={id:"",empId,field:v("cgfd"),qual:v("cgql"),qs,eduS:er[0],es,career:car,cs,tot:qs+es+cs,note:v("cgnote")};
+    const i=CONST.findIndex(x=>x.empId===empId);if(i>-1){data.id=CONST[i].id;CONST[i]=data;}else{data.id=nid("CG",CONST);CONST.push(data);}
+    closeM();saveAll();render();
+  };
+}
+
+// ── 급여 ──
+function editSal(empId){
+  const s=SAL.find(x=>x.empId===empId)||{ann:0,base:0,pa:0,ta:0,qa:0,meal:0,trans:0,h1:"",h2:"",aw:0,dis:0,history:""};
+  openM(mH(`급여평가 — ${en(empId)}`)+`
+  <div class="sdiv">연봉 및 기본급</div>
+  <div class="fr"><div class="fg"><label>연봉(만원)</label><input id="sann" type="number" value="${s.ann}"></div><div class="fg"><label>기본급(월, 원)</label><input id="sbase" type="number" value="${s.base}"></div></div>
+  <div class="sdiv">각종 수당 (원/월)</div>
+  <div class="fr3"><div class="fg"><label>직책수당</label><input id="spa" type="number" value="${s.pa}"></div><div class="fg"><label>기술수당</label><input id="sta" type="number" value="${s.ta}"></div><div class="fg"><label>자격수당</label><input id="sqa" type="number" value="${s.qa}"></div></div>
+  <div class="fr"><div class="fg"><label>식대</label><input id="smeal" type="number" value="${s.meal}"></div><div class="fg"><label>교통비</label><input id="strans" type="number" value="${s.trans}"></div></div>
+  <div class="sdiv">인사평가</div>
+  <div class="fr"><div class="fg"><label>상반기</label><select id="sh1"><option value="">-</option><option>S</option><option>A</option><option>B</option><option>C</option></select></div><div class="fg"><label>하반기</label><select id="sh2"><option value="">-</option><option>S</option><option>A</option><option>B</option><option>C</option></select></div></div>
+  <div class="fr"><div class="fg"><label>포상횟수</label><input id="saw" type="number" value="${s.aw}" min="0"></div><div class="fg"><label>징계횟수</label><input id="sdis" type="number" value="${s.dis}" min="0"></div></div>
+  <div class="fg full" style="margin-bottom:9px"><label>포상/징계 이력</label><input id="shist" value="${s.history||""}"></div>
+  `+mF(`_saveS_${empId}`));
+  document.getElementById("sh1").value=s.h1||"";document.getElementById("sh2").value=s.h2||"";
+  window[`_saveS_${empId}`]=()=>{
+    const data={id:"",empId,ann:iv("sann"),base:iv("sbase"),pa:iv("spa"),ta:iv("sta"),qa:iv("sqa"),meal:iv("smeal"),trans:iv("strans"),h1:v("sh1"),h2:v("sh2"),aw:iv("saw"),dis:iv("sdis"),history:v("shist")};
+    const i=SAL.findIndex(x=>x.empId===empId);if(i>-1){data.id=SAL[i].id;SAL[i]=data;}else{data.id=nid("S",SAL);SAL.push(data);}
+    closeM();saveAll();render();
+  };
+}
+
+// ── 경력이력 ──
+function addCareer(){
+  openM(mH("경력이력 추가")+`
+  <div class="fr"><div class="fg"><label>직원 *</label><select id="rceid">${eopts()}</select></div><div class="fg"><label>연도</label><input id="rcyr" type="number" value="2026" min="2000" max="2099"></div></div>
+  <div class="fr"><div class="fg"><label>구분</label><select id="rccat"><option>프로젝트</option><option>수상</option><option>자격취득</option><option>교육이수</option><option>연구참여</option><option>특허/기고</option></select></div><div class="fg"><label>세부유형</label><input id="rcsub" placeholder="건축공사·학술발표 등"></div></div>
+  <div class="fg full" style="margin-bottom:9px"><label>제목 *</label><input id="rctitle"></div>
+  <div class="fr"><div class="fg"><label>기관/회사</label><input id="rcorg"></div><div class="fg"><label>활동기간</label><input id="rcperiod" placeholder="2024-03~2024-12"></div></div>
+  <div class="fr"><div class="fg"><label>역할</label><input id="rcrole"></div><div class="fg"><label>결과/성과</label><input id="rcresult"></div></div>
+  <div class="fr"><div class="fg"><label>점수</label><input id="rcscore" type="number" value="10" min="0" max="100"></div></div>
+  `+mF("_saveCareer"));
+}
+window._saveCareer=()=>{
+  const eid=v("rceid"),title=v("rctitle").trim();if(!title){alert("제목 필수");return;}
+  CAREER.push({id:nid("CAR",CAREER),empId:eid,year:iv("rcyr"),cat:v("rccat"),subType:v("rcsub"),title,org:v("rcorg"),period:v("rcperiod"),role:v("rcrole"),result:v("rcresult"),score:iv("rcscore")});
+  closeM();saveAll();render();
+};
+
+// ── KPI ──
+function editKpi(empId){
+  const k=KPI.find(x=>x.empId===empId)||{perf:0,cs:0,dev:0,comp:0,att:0,note:""};
+  openM(mH(`KPI 입력 — ${en(empId)}`)+`
+  <div class="tip">가중점수 = 업무성과×30% + 경력관리×20% + 역량개발×15% + 조직기여×20% + 태도리더십×15%</div>
+  <div class="fr"><div class="fg"><label>업무성과 (0~100)</label><input id="kpf" type="number" value="${k.perf}" min="0" max="100"></div><div class="fg"><label>경력관리 (0~100)</label><input id="kcs" type="number" value="${k.cs}" min="0" max="100" step="0.1"></div></div>
+  <div class="fr"><div class="fg"><label>역량개발 (0~100)</label><input id="kdv" type="number" value="${k.dev}" min="0" max="100"></div><div class="fg"><label>조직기여 (0~100)</label><input id="kcp" type="number" value="${k.comp}" min="0" max="100"></div></div>
+  <div class="fr"><div class="fg"><label>태도리더십 (0~100)</label><input id="kat" type="number" value="${k.att}" min="0" max="100"></div></div>
+  <div class="fg full" style="margin-bottom:9px"><label>비고</label><input id="knote" value="${k.note||""}"></div>
+  `+mF(`_saveK_${empId}`));
+  window[`_saveK_${empId}`]=()=>{
+    const data={id:"",empId,perf:iv("kpf"),cs:fv("kcs"),dev:iv("kdv"),comp:iv("kcp"),att:iv("kat"),note:v("knote")};
+    const i=KPI.findIndex(x=>x.empId===empId);if(i>-1){data.id=KPI[i].id;KPI[i]=data;}else{data.id=nid("K",KPI);KPI.push(data);}
+    closeM();saveAll();render();
+  };
+}
+
+// ── 연봉추이 ──
+function editTrend(empId){
+  const t=TREND.find(x=>x.empId===empId)||{y:[0,0,0,0,0]};
+  openM(mH(`연봉추이 — ${en(empId)}`)+`
+  <div class="tip">연도: 2021 / 2022 / 2023 / 2024 / 2025 (만원 단위, 미해당=0)</div>
+  <div class="fr"><div class="fg"><label>2021년(만)</label><input id="ty21" type="number" value="${t.y[0]||0}"></div><div class="fg"><label>2022년(만)</label><input id="ty22" type="number" value="${t.y[1]||0}"></div></div>
+  <div class="fr"><div class="fg"><label>2023년(만)</label><input id="ty23" type="number" value="${t.y[2]||0}"></div><div class="fg"><label>2024년(만)</label><input id="ty24" type="number" value="${t.y[3]||0}"></div></div>
+  <div class="fr"><div class="fg"><label>2025년(만)</label><input id="ty25" type="number" value="${t.y[4]||0}"></div></div>
+  `+mF(`_saveT_${empId}`));
+  window[`_saveT_${empId}`]=()=>{
+    const y=[iv("ty21"),iv("ty22"),iv("ty23"),iv("ty24"),iv("ty25")];
+    const data={id:"",empId,y};const i=TREND.findIndex(x=>x.empId===empId);if(i>-1){data.id=TREND[i].id;TREND[i]=data;}else{data.id=nid("T",TREND);TREND.push(data);}
+    closeM();saveAll();render();
+  };
+}
+
+// ── 조직 ──
+function editOrg(id){
+  const o=ORGS.find(x=>x.id===id)||{hqCode:"",hqName:"",teamCode:"",teamName:"",leader:"",mainWork:""};
+  const key=(id||"new").replace(/[^0-9a-zA-Z]/g,"x");
+  openM(mH(id?"조직 편집":"조직 추가")+`
+  <div class="fr"><div class="fg"><label>본부코드</label><input id="ohqc" value="${o.hqCode}"></div><div class="fg"><label>본부명</label><input id="ohqn" value="${o.hqName}"></div></div>
+  <div class="fr"><div class="fg"><label>팀코드</label><input id="otmc" value="${o.teamCode}"></div><div class="fg"><label>팀명</label><input id="otmn" value="${o.teamName}"></div></div>
+  <div class="fr"><div class="fg"><label>팀장</label><input id="oldr" value="${o.leader}"></div><div class="fg"><label>주요업무</label><input id="owrk" value="${o.mainWork}"></div></div>
+  `+mF(`_saveOrg_${key}`));
+  window[`_saveOrg_${key}`]=()=>{
+    const data={id:id||nid("O",ORGS),hqCode:v("ohqc"),hqName:v("ohqn"),teamCode:v("otmc"),teamName:v("otmn"),leader:v("oldr"),mainWork:v("owrk")};
+    const i=ORGS.findIndex(x=>x.id===id);if(i>-1)ORGS[i]=data;else ORGS.push(data);
+    closeM();saveAll();render();
+  };
+}
+
+const TABS=[
+  {id:"dash",icon:"📊",label:"대시보드",g:""},
+  {id:"org",icon:"🏢",label:"조직도",g:"기본정보"},
+  {id:"emp",icon:"👥",label:"직원기본정보",g:"기본정보"},
+  {id:"personal",icon:"🪪",label:"인적사항보강",g:"기본정보"},
+  {id:"cert",icon:"🏅",label:"자격증관리",g:"역량관리"},
+  {id:"edu",icon:"📚",label:"교육이수현황",g:"역량관리"},
+  {id:"career",icon:"📋",label:"경력이력부",g:"역량관리"},
+  {id:"leave",icon:"📅",label:"연차관리",g:"근무관리"},
+  {id:"cg",icon:"⛑️",label:"건설기술자등급",g:"근무관리"},
+  {id:"sal",icon:"💰",label:"급여평가",g:"성과관리"},
+  {id:"kpi",icon:"📈",label:"KPI평가",g:"성과관리"},
+  {id:"trend",icon:"📉",label:"연봉추이",g:"성과관리"},
+];
+
+const fbtn=()=>`<div class="btn-row">${["전체","재직중","휴직","퇴직"].map(f=>`<button class="btn ${sf===f?"on":""}" onclick="sf='${f}';render()">${f}</button>`).join("")}<span style="font-size:10px;color:#64748b">${fe().length}명</span></div>`;
+
+function renderNav(){
+  let h="";let lg="";
+  TABS.forEach(t=>{if(t.g&&t.g!==lg){h+=`<div class="tb-g">${t.g}</div>`;lg=t.g;}h+=`<button class="tb ${tab===t.id?"on":""}" onclick="tab='${t.id}';render();if(window.innerWidth<=768){document.getElementById('side').classList.remove('open');document.getElementById('overlay').classList.remove('show');}">${t.icon} ${t.label}</button>`;});
+  h+=`<div style="margin:8px 8px 0;display:flex;flex-direction:column;gap:4px">
+  <button class="btn btn-add" style="width:100%;font-size:10px;background:#7c3aed;border-color:#7c3aed" onclick="exportHTML()">📤 데이터포함 HTML 저장</button>
+  <button class="btn" style="width:100%;font-size:10px;background:#0f172a;color:#94a3b8;border-color:#1e293b" onclick="document.getElementById('importJSON').click()">📥 JSON 가져오기</button>
+  <button class="btn" style="width:100%;font-size:10px;background:#0f172a;color:#94a3b8;border-color:#1e293b" onclick="exportJSON()">💾 JSON 내보내기</button>
+  <button class="btn btn-del" style="width:100%;font-size:10px" onclick="resetAll()">🗑️ 초기화</button>
+  <input type="file" id="importJSON" accept=".json" style="display:none" onchange="importJSON(event)">
+</div>`;
+  document.getElementById("nav").innerHTML=h;
+  renderFt();
+}
+
+function renderMain(){
+  const M=document.getElementById("main");
+  const emps=fe();
+  const allE=EMP.map(ce);
+
+  if(tab==="dash"){
+    const ac=EMP.filter(e=>e.status==="재직중").length;
+    const hl=EMP.filter(e=>e.status==="휴직").length;
+    const rt=EMP.filter(e=>e.status==="퇴직").length;
+    // 교육 만료 알림
+    const eduAlerts=EDUS.map(e=>{const exp=addM(e.cd,e.vm);const r=dd(exp);return{...e,nm:en(e.empId),dept:ed(e.empId),exp:exp.toISOString().slice(0,10),rem:r,st:eduSt(r)};}).filter(e=>e.st[0]!=="이수완료").sort((a,c)=>a.rem-c.rem);
+    // 자격증 갱신 알림
+    const certAlerts=CERTS.map(c=>{const perm=c.vy===99||!c.expireDate;const rem=perm?9999:dd(new Date(c.expireDate));return{...c,nm:en(c.empId),rem,perm,st:certSt(rem,perm)};}).filter(c=>!c.perm&&c.rem<180).sort((a,b)=>a.rem-b.rem);
+    // 연차 소멸 임박 (잔여 5일 이하)
+    const leaveAlerts=allE.filter(e=>e.hireDate&&e.al>0).map(e=>{const l=getL(e.id,e.al);return{...e,...l};}).filter(e=>e.rem<=5&&e.rem>=0);
+    // 생일·입사기념일 (이번달)
+    const thisMonth=TODAY.getMonth()+1;
+    const birthdays=allE.filter(e=>e.birth&&new Date(e.birth).getMonth()+1===thisMonth).map(e=>({...e,bDay:new Date(e.birth).getDate()}));
+    const anniversaries=allE.filter(e=>e.hireDate&&new Date(e.hireDate).getMonth()+1===thisMonth).map(e=>{const t=tenure(e.hireDate);return{...e,years:Math.floor(t||0),annDay:new Date(e.hireDate).getDate()};}).filter(e=>e.years>0);
+    // 건설기술자 승급 임박 (10점 이내)
+    const constAlerts=CONST.filter(c=>{const nx=constNext(c.tot);return nx.need>0&&nx.need<=10;}).map(c=>({...c,nm:en(c.empId),nx:constNext(c.tot),g:constG(c.tot)}));
+    // 급여 통계
+    const salL=SAL.filter(s=>s.ann>0);const avg=salL.length?Math.round(salL.reduce((s,x)=>s+x.ann,0)/salL.length):0;
+    const maxSal=salL.length?Math.max(...salL.map(s=>s.ann)):0;const minSal=salL.length?Math.min(...salL.map(s=>s.ann)):0;
+    // KPI 통계
+    const kpiL=KPI.map(calcK).filter(k=>k.w>0);const avgK=kpiL.length?Math.round(kpiL.reduce((s,k)=>s+k.w,0)/kpiL.length*10)/10:0;
+    const totalAlerts=eduAlerts.length+certAlerts.length+leaveAlerts.length;
+    M.innerHTML=`<div class="sh">📊 인사관리 통합 대시보드</div><div class="ss">V4.1 · 기준일 2026-05-22 · 전 시트 자동집계 · 실시간 알림</div>
+    <!-- KPI 카드 -->
+    <div class="kgrid">
+      <div class="kc"><div class="kl">재직 인원</div><div class="kv" style="color:#2563eb">${ac}명</div><div class="ks">휴직 ${hl}명 / 퇴직 ${rt}명</div></div>
+      <div class="kc" style="background:${totalAlerts>0?"#fef2f2":"#f0fdf4"};border-color:${totalAlerts>0?"#fecaca":"#bbf7d0"}"><div class="kl">⚠ 전체 알림</div><div class="kv" style="color:${totalAlerts>0?"#dc2626":"#16a34a"}">${totalAlerts}건</div><div class="ks">교육${eduAlerts.length}·자격증${certAlerts.length}·연차${leaveAlerts.length}</div></div>
+      <div class="kc"><div class="kl">전사 평균 연봉</div><div class="kv" style="color:#16a34a">${won(avg)}만</div><div class="ks">최저 ${won(minSal)}만 · 최고 ${won(maxSal)}만</div></div>
+      <div class="kc"><div class="kl">평균 KPI</div><div class="kv" style="color:#7c3aed">${avgK}점</div><div class="ks">${kpiL.length}명 평가 완료</div></div>
+    </div>
+    <!-- 인원 현황 -->
+    <div class="grid2">
+      <div class="card"><div class="ch">본부별 재직 인원</div><div style="padding:12px">
+        ${[...new Set(EMP.filter(e=>e.status==="재직중").map(e=>e.dept))].map(dept=>{const n=EMP.filter(e=>e.dept===dept&&e.status==="재직중").length;return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="font-size:11px;color:#64748b;width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${dept}</div><div class="bar"><div class="bf" style="width:${pct(n,ac)}%;background:#3b82f6"></div></div><b style="font-size:11px;width:20px">${n}</b></div>`;}).join("")}
+      </div></div>
+      <div class="card"><div class="ch">KPI 등급 분포</div><div style="padding:12px">
+        ${["S","A","B","C","D"].map(g=>{const n=kpiL.filter(k=>k.g[0]===g).length;const names=KPI.map(calcK).filter(k=>k.g[0]===g).map(k=>en(k.empId)).join(", ");return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span class="bdg ${gb(g)}" style="width:22px;justify-content:center">${g}</span><div class="bar"><div class="bf" style="width:${pct(n,Math.max(kpiL.length,1))}%;background:#3b82f6"></div></div><b style="font-size:11px;width:20px">${n}</b><span style="font-size:10px;color:#94a3b8">${names}</span></div>`;}).join("")}
+      </div></div>
+    </div>
+    <!-- 알림 섹션 -->
+    <div class="grid2">
+      <div class="card">
+        <div class="ch" style="background:${eduAlerts.length>0?"#fef2f2":"#f0fdf4"}"><span>📚 교육 만료 알림 (${eduAlerts.length}건)</span>${eduAlerts.length>0?`<span style="font-size:10px;color:#dc2626;font-weight:700">즉시 조치 필요</span>`:""}</div>
+        ${eduAlerts.length?tbl(["성명","교육명","만료일","잔여일","상태"],eduAlerts.slice(0,6).map(e=>`<tr style="background:${e.st[0]==="재교육필요"?"#fef2f2":e.rem<=30?"#fff7ed":""}"><td><b>${e.nm}</b></td><td style="font-size:10px">${e.edu}</td><td>${e.exp}</td><td style="color:${e.rem<0?"#dc2626":e.rem<=30?"#ea580c":""};font-weight:${e.rem<=30?700:400}">${e.rem}일</td><td>${b(e.st[0],e.st[1])}</td></tr>`)):`<div class="empty">만료 교육 없음 👍</div>`}
+      </div>
+      <div class="card">
+        <div class="ch" style="background:${certAlerts.length>0?"#fff7ed":"#f0fdf4"}"><span>🏅 자격증 갱신 알림 (${certAlerts.length}건)</span>${certAlerts.length>0?`<span style="font-size:10px;color:#ea580c;font-weight:700">180일 이내</span>`:""}</div>
+        ${certAlerts.length?tbl(["성명","자격증","만료일","잔여일","상태"],certAlerts.slice(0,6).map(c=>`<tr><td><b>${c.nm}</b></td><td>${c.cert}</td><td>${c.expireDate}</td><td style="color:${c.rem<0?"#dc2626":c.rem<=90?"#ea580c":""};font-weight:${c.rem<=90?700:400}">${c.rem}일</td><td>${b(c.st[0],c.st[1])}</td></tr>`)):`<div class="empty">갱신 필요 자격증 없음 👍</div>`}
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="ch">📅 연차 소멸 임박 (잔여 5일 이하)</div>
+        ${leaveAlerts.length?tbl(["성명","발생연차","잔여연차","사용률"],leaveAlerts.map(e=>`<tr><td><b>${e.name}</b></td><td>${e.al}일</td><td style="color:#dc2626;font-weight:700">${e.rem}일</td><td>${e.rate}%</td></tr>`)):`<div class="empty">소멸 임박 연차 없음 👍</div>`}
+      </div>
+      <div class="card">
+        <div class="ch">⛑️ 건설기술자 승급 임박 (10점 이내)</div>
+        ${constAlerts.length?tbl(["성명","현재등급","총점","다음등급","잔여점수"],constAlerts.map(c=>`<tr><td><b>${c.nm}</b></td><td>${b(c.g[0],c.g[1])}</td><td>${c.tot}점</td><td style="color:#2563eb;font-weight:700">${c.nx.next}</td><td style="color:#dc2626;font-weight:700">${c.nx.need}점</td></tr>`)):`<div class="empty">승급 임박자 없음</div>`}
+      </div>
+    </div>
+    <!-- 생일·입사기념일 -->
+    <div class="grid2">
+      <div class="card">
+        <div class="ch">🎂 이번달 생일 (${thisMonth}월)</div>
+        ${birthdays.length?tbl(["성명","부서","생년월일","날짜"],birthdays.map(e=>`<tr><td><b>${e.name}</b></td><td>${e.dept}</td><td>${e.birth}</td><td style="color:#7c3aed;font-weight:700">${thisMonth}월 ${e.bDay}일</td></tr>`)):`<div class="empty">이번달 생일 없음</div>`}
+      </div>
+      <div class="card">
+        <div class="ch">🎉 이번달 입사기념일 (${thisMonth}월)</div>
+        ${anniversaries.length?tbl(["성명","부서","입사일","연수"],anniversaries.map(e=>`<tr><td><b>${e.name}</b></td><td>${e.dept}</td><td>${e.hireDate}</td><td style="color:#16a34a;font-weight:700">${e.years}주년 🎊</td></tr>`)):`<div class="empty">이번달 기념일 없음</div>`}
+      </div>
+    </div>
+    <!-- 연봉 현황 요약 -->
+    <div class="card">
+      <div class="ch">💰 연봉 현황 요약</div>
+      <div style="padding:12px">
+        ${SAL.filter(s=>s.ann>0).sort((a,b)=>b.ann-a.ann).map(s=>{const e=EMP.find(x=>x.empId===s.empId||x.id===s.empId);const nm=e?e.name:s.empId;const grade=e?e.grade:"-";const ov=evalOv(s.h1,s.h2);return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:6px 8px;border-radius:6px;background:#f8fafc"><b style="font-size:11px;width:60px">${nm}</b><span style="font-size:10px;color:#64748b;width:60px">${grade}</span><div class="bar" style="flex:1"><div class="bf" style="width:${pct(s.ann,maxSal)}%;background:#3b82f6"></div></div><b style="font-size:12px;width:65px;text-align:right;color:#0f172a">${won(s.ann)}만</b>${ov!=="-"?b(ov,gb(ov)):"<span></span>"}</div>`;}).join("")}
+      </div>
+    </div>
+    <!-- 메모 -->
+    <div class="card"><div class="ch">📝 공지·메모</div><div style="padding:12px"><textarea class="mi" style="width:100%;height:70px;resize:vertical" placeholder="공지사항, 이슈, 특이사항 자유입력" onchange="MEMOS['dash_global']=this.value;saveAll()">${MEMOS["dash_global"]||""}</textarea></div></div>`;
+  }
+
+  else if(tab==="org"){
+    const groups=[...new Set(ORGS.map(o=>o.hqCode))];
+    M.innerHTML=`<div class="sh">🏢 조직도</div><div class="ss">부서·팀 구조 관리 · 추가/편집/삭제</div>
+    <button class="btn btn-add" onclick="editOrg(null)" style="margin-bottom:10px">+ 부서/팀 추가</button>
+    ${groups.map(hq=>{const teams=ORGS.filter(o=>o.hqCode===hq);const hqNm=teams[0]?.hqName;const cnt=EMP.filter(e=>e.dept===hqNm).length;return`<div class="card"><div class="org-hq"><span>${hq} · ${hqNm}</span><span style="font-size:11px;color:#94a3b8">${cnt}명</span></div>${tbl(["팀코드","팀명","팀장","주요업무","인원","편집","삭제"],teams.map(t=>`<tr><td style="font-family:monospace;font-size:10px;color:#94a3b8">${t.teamCode}</td><td><b>${t.teamName}</b></td><td>${t.leader}</td><td style="color:#64748b;font-size:10px">${t.mainWork}</td><td>${EMP.filter(e=>e.team===t.teamName).length}명</td><td><button class="btn btn-edit" onclick="editOrg('${t.id}')">편집</button></td><td><button class="btn btn-del" onclick="delRow(ORGS,'${t.id}')">삭제</button></td></tr>`))}</div>`;}).join("")}`;
+  }
+
+  else if(tab==="emp"){
+    M.innerHTML=`<div class="sh">👥 직원기본정보</div><div class="ss">🔄 만나이·근속·연차·총경력 자동계산 · 수기 메모</div>${fbtn()}
+    <button class="btn btn-add" onclick="addEmp()" style="margin-bottom:10px">+ 직원 추가</button>
+    <div class="card" style="overflow:hidden">${tbl(["사번","상태","성명","성별","생년월일","만나이🔄","부서","팀","직급","학력","전공","입사일","근속🔄","발생연차🔄","총경력🔄","연락처","이메일","연구자번호","주소","수기메모","관리"],
+      emps.map(e=>`<tr>
+        <td style="font-family:monospace;font-size:10px;color:#94a3b8">${e.id}</td>
+        <td>${b(e.status,stB(e.status))}</td>
+        <td><b>${e.name}</b></td><td>${e.gender}</td><td>${e.birth||"-"}</td>
+        <td><b style="color:#2563eb">${e.age}세</b></td>
+        <td>${e.dept}</td><td>${e.team||"-"}</td>
+        <td>${b(e.grade,"bn")}</td>
+        <td>${e.edu||"-"}</td><td style="font-size:10px">${e.major||"-"}</td>
+        <td>${e.hireDate||"-"}</td>
+        <td style="color:#16a34a;font-weight:600">${e.tf}</td>
+        <td><b style="color:#2563eb">${e.al>0?e.al+"일":"-"}</b></td>
+        <td>${e.tc>0?e.tc+"년":"-"}</td>
+        <td style="font-size:10px">${e.phone||"-"}</td>
+        <td style="font-size:10px">${e.email||"-"}</td>
+        <td style="font-family:monospace;font-size:10px;color:#94a3b8">${e.researchNo||"-"}</td>
+        <td style="font-size:10px;max-width:100px;overflow:hidden;text-overflow:ellipsis">${e.addr||"-"}</td>
+        ${mc("emp_"+e.id,"특이사항...")}
+        <td><button class="btn btn-del" onclick="delRow(EMP,'${e.id}')">삭제</button></td>
+      </tr>`)
+    )}</div>`;
+  }
+
+  else if(tab==="personal"){
+    M.innerHTML=`<div class="sh">🪪 인적사항보강</div><div class="ss">근로기준법 제41조 · 4대보험번호·가족사항·병역 포함 · ⚠ 민감정보</div>
+    <div class="alert">⚠ 민감정보 — 인사담당자 전용</div>${fbtn()}
+    <div class="card" style="overflow:hidden">${tbl(["사번","성명","계약형태","4대보험","건강보험번호","국민연금번호","고용보험번호","산재보험번호","비상연락","관계","배우자","자녀","부양","병역","장애","특이사항","수기메모","편집"],
+      emps.map(e=>{
+        const p=PERSONAL.find(x=>x.empId===e.id);
+        if(!p)return`<tr><td style="font-family:monospace;font-size:10px;color:#94a3b8">${e.id}</td><td><b>${e.name}</b></td><td colspan="15" style="color:#94a3b8">미입력</td><td><button class="btn btn-add" style="font-size:10px;padding:3px 8px" onclick="editPersonal('${e.id}')">입력</button></td></tr>`;
+        return`<tr>
+          <td style="font-family:monospace;font-size:10px;color:#94a3b8">${e.id}</td>
+          <td><b>${e.name}</b></td>
+          <td>${b(p.contract,"bi")}</td>
+          <td>${b(p.ins4,p.ins4==="가입"?"bg":"br")}</td>
+          <td style="font-family:monospace;font-size:10px">${p.hi||"-"}</td>
+          <td style="font-family:monospace;font-size:10px">${p.np||"-"}</td>
+          <td style="font-family:monospace;font-size:10px">${p.ei||"-"}</td>
+          <td style="font-family:monospace;font-size:10px">${p.wi||"-"}</td>
+          <td style="font-size:10px">${p.emergency||"-"}</td>
+          <td>${p.relation||"-"}</td>
+          <td>${p.spouse}</td>
+          <td>${p.children}명</td>
+          <td>${p.dependents}명</td>
+          <td style="font-size:10px">${p.military||"-"}</td>
+          <td>${p.disability}</td>
+          <td>${p.special!=="-"?b(p.special,"bw"):"-"}</td>
+          ${mc("personal_"+e.id,"메모...")}
+          <td><button class="btn btn-edit" onclick="editPersonal('${e.id}')">편집</button></td>
+        </tr>`;
+      })
+    )}</div>`;
+  }
+
+  else if(tab==="cert"){
+    const rows=CERTS.map(c=>{const perm=c.vy===99||!c.expireDate;const rem=perm?null:dd(new Date(c.expireDate));return{...c,perm,rem,st:certSt(rem,perm)};});
+    M.innerHTML=`<div class="sh">🏅 자격증관리</div><div class="ss">🔄 갱신상태·잔여일수 자동판정 · 추가/삭제 · 비고·수기메모</div>
+    <button class="btn btn-add" onclick="addCert()" style="margin-bottom:10px">+ 자격증 추가</button>
+    <div class="card" style="overflow:hidden">${tbl(["사번","성명","자격증명","자격구분","발급기관","자격번호","취득일","유효기간","만료일","잔여일수🔄","갱신상태🔄","비고","수기메모","삭제"],
+      rows.map(c=>`<tr>
+        <td style="font-family:monospace;font-size:10px;color:#94a3b8">${c.empId}</td>
+        <td><b>${en(c.empId)}</b></td>
+        <td><b>${c.cert}</b></td>
+        <td>${b(c.type,"bn")}</td>
+        <td style="font-size:10px">${c.org}</td>
+        <td style="font-family:monospace;font-size:10px">${c.certNo||"-"}</td>
+        <td>${c.acquireDate||"-"}</td>
+        <td>${c.vy===99?"영구":c.vy+"년"}</td>
+        <td>${c.expireDate||"-"}</td>
+        <td style="color:${c.rem!==null&&c.rem<0?"#dc2626":c.rem!==null&&c.rem<=90?"#ca8a04":""};font-weight:${c.rem!==null&&c.rem<=90?700:400}">${c.rem===null?"영구":c.rem+"일"}</td>
+        <td>${b(c.st[0],c.st[1])}</td>
+        <td style="font-size:10px;color:#64748b">${c.note||"-"}</td>
+        ${mc("cert_"+c.id,"메모...")}
+        <td><button class="btn btn-del" onclick="delRow(CERTS,'${c.id}')">삭제</button></td>
+      </tr>`)
+    )}</div>`;
+  }
+
+  else if(tab==="edu"){
+    M.innerHTML=`<div class="sh">📚 교육이수현황</div><div class="ss">🔄 만료일·잔여일·상태 자동계산 · 비고·수기메모</div>${fbtn()}
+    <button class="btn btn-add" onclick="addEdu()" style="margin-bottom:10px">+ 교육이수 추가</button>
+    <div class="card" style="overflow:hidden">${tbl(["사번","상태","성명","구분","교육명","기관","시간","이수일","유효기간","만료일🔄","잔여일🔄","이수상태🔄","비고","수기메모","삭제"],
+      emps.flatMap(e=>{
+        const eds=EDUS.filter(x=>x.empId===e.id).map(d=>{const exp=addM(d.cd,d.vm);const r=dd(exp);return{...d,exp:exp.toISOString().slice(0,10),rem:r,st:eduSt(r)};});
+        if(!eds.length)return[`<tr><td style="font-family:monospace;font-size:10px;color:#94a3b8">${e.id}</td><td>${b(e.status,stB(e.status))}</td><td><b>${e.name}</b></td><td colspan="12" style="color:#94a3b8">없음</td></tr>`];
+        return eds.map(d=>`<tr style="background:${d.st[0]==="재교육필요"?"#fef2f2":""}">
+          <td style="font-family:monospace;font-size:10px;color:#94a3b8">${e.id}</td>
+          <td>${b(e.status,stB(e.status))}</td>
+          <td><b>${e.name}</b></td>
+          <td>${b(d.type,d.type==="법정의무"?"br":"bi")}</td>
+          <td>${d.edu}</td><td style="font-size:10px">${d.org}</td>
+          <td>${d.h}h</td><td>${d.cd}</td><td>${d.vm}개월</td>
+          <td><b>${d.exp}</b></td>
+          <td style="color:${d.rem<0?"#dc2626":d.rem<=30?"#ca8a04":""};font-weight:${d.rem<0?700:400}">${d.rem}일</td>
+          <td>${b(d.st[0],d.st[1])}</td>
+          <td style="font-size:10px;color:#64748b">${d.note||"-"}</td>
+          ${mc("edu_"+d.id,"메모...")}
+          <td><button class="btn btn-del" onclick="delRow(EDUS,'${d.id}')">삭제</button></td>
+        </tr>`);
+      })
+    )}</div>`;
+  }
+
+  else if(tab==="career"){
+    const totals={};CAREER.forEach(c=>{totals[c.empId]=(totals[c.empId]||0)+(c.score||0);});
+    M.innerHTML=`<div class="sh">📋 경력이력부</div><div class="ss">프로젝트·수상·자격·연구 누적 기록 · 세부유형·활동기간 포함 · 점수 자동집계</div>${fbtn()}
+    <button class="btn btn-add" onclick="addCareer()" style="margin-bottom:10px">+ 경력이력 추가</button>
+    <div class="grid2" style="margin-bottom:12px">${emps.map(e=>{const tot=totals[e.id]||0;const g=tot>=100?"bp":tot>=70?"bi":tot>=40?"bg":tot>=20?"bw":"bn";return`<div class="kc" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px"><div><div style="font-size:11px;font-weight:700">${e.name}</div><div style="font-size:10px;color:#64748b">${e.dept}</div></div><div style="text-align:right"><div style="font-size:18px;font-weight:700;color:#2563eb">${tot}점</div>${b(tot>=100?"S":tot>=70?"A":tot>=40?"B":tot>=20?"C":"D",g)}</div></div>`;}).join("")}</div>
+    <div class="card" style="overflow:hidden">${tbl(["사번","상태","성명","연도","구분","세부유형","제목","기관","활동기간","역할","결과","점수","누적점수🔄","수기메모","삭제"],
+      emps.flatMap(e=>{
+        const cars=CAREER.filter(x=>x.empId===e.id).sort((a,c)=>c.year-a.year);
+        let cum=0;
+        if(!cars.length)return[`<tr><td style="font-family:monospace;font-size:10px;color:#94a3b8">${e.id}</td><td>${b(e.status,stB(e.status))}</td><td><b>${e.name}</b></td><td colspan="12" style="color:#94a3b8">없음</td></tr>`];
+        return [...cars].reverse().map((c,idx)=>{cum+=c.score;return`<tr>
+          <td style="font-family:monospace;font-size:10px;color:#94a3b8">${e.id}</td>
+          <td>${b(e.status,stB(e.status))}</td>
+          <td><b>${e.name}</b></td>
+          <td>${c.year}</td>
+          <td>${b(c.cat,catBdg[c.cat]||"bn")}</td>
+          <td style="font-size:10px;color:#64748b">${c.subType||"-"}</td>
+          <td>${c.title}</td>
+          <td style="font-size:10px">${c.org}</td>
+          <td style="font-size:10px;color:#64748b">${c.period||"-"}</td>
+          <td>${c.role}</td>
+          <td style="font-size:10px;color:#64748b">${c.result}</td>
+          <td><b style="color:#2563eb">${c.score}점</b></td>
+          <td><b style="color:#7c3aed">${cum}점</b></td>
+          ${mc("car_"+c.id,"메모...")}
+          <td><button class="btn btn-del" onclick="delRow(CAREER,'${c.id}')">삭제</button></td>
+        </tr>`;}).reverse();
+      })
+    )}</div>`;
+  }
+
+  else if(tab==="leave"){
+    M.innerHTML=`<div class="sh">📅 연차관리</div><div class="ss">🔄 발생연차 자동산정 · 전년이월·반차 포함 · 편집 · 수기메모</div>${fbtn()}
+    <div class="card" style="overflow:hidden">${tbl(["사번","상태","성명","부서","발생연차🔄","전년이월","총연차🔄","사용연차","반차(회)","잔여연차🔄","사용률🔄","경조사","병가","공가","비고","수기메모","편집"],
+      emps.map(e=>{const l=getL(e.id,e.al);return`<tr>
+        <td style="font-family:monospace;font-size:10px;color:#94a3b8">${e.id}</td>
+        <td>${b(e.status,stB(e.status))}</td>
+        <td><b>${e.name}</b></td><td>${e.dept}</td>
+        <td><b style="color:#2563eb">${l.al}일</b></td>
+        <td>${l.carry||0}일</td>
+        <td><b style="color:#7c3aed">${l.total}일</b></td>
+        <td>${l.used}일</td>
+        <td>${l.half||0}회</td>
+        <td><b>${l.rem}일</b></td>
+        <td><div class="bar-w"><div class="bar"><div class="bf" style="width:${l.rate}%;background:${l.rate>=80?"#16a34a":"#3b82f6"}"></div></div><span style="font-size:10px;font-weight:600">${l.rate}%</span></div></td>
+        <td>${l.sp}일</td><td>${l.sick}일</td><td>${l.off}일</td>
+        <td style="font-size:10px;color:#94a3b8">${l.note||"-"}</td>
+        ${mc("leave_"+e.id,"메모...")}
+        <td><button class="btn btn-edit" onclick="editLeave('${e.id}')">편집</button></td>
+      </tr>`;})
+    )}</div>`;
+  }
+
+  else if(tab==="cg"){
+    M.innerHTML=`<div class="sh">⛑️ 건설기술자등급</div><div class="ss">🔄 자격+학력+경력 자동합산 · 승급까지 잔여점수 · 수기메모</div>${fbtn()}
+    <div class="card" style="overflow:hidden">${tbl(["사번","상태","성명","분야","최고자격","자격점수","학력","학력점수","경력(년)","경력점수🔄","총점🔄","현재등급🔄","다음등급","승급잔여🔄","비고","수기메모","편집"],
+      emps.map(e=>{
+        const c=CONST.find(x=>x.empId===e.id);
+        if(!c)return`<tr><td style="font-family:monospace;font-size:10px;color:#94a3b8">${e.id}</td><td>${b(e.status,stB(e.status))}</td><td><b>${e.name}</b></td><td>${e.dept}</td><td colspan="12" style="color:#94a3b8">미입력</td><td><button class="btn btn-add" style="font-size:10px;padding:3px 8px" onclick="editConst('${e.id}')">입력</button></td></tr>`;
+        const g=constG(c.tot);const nx=constNext(c.tot);
+        return`<tr>
+          <td style="font-family:monospace;font-size:10px;color:#94a3b8">${e.id}</td>
+          <td>${b(e.status,stB(e.status))}</td>
+          <td><b>${e.name}</b></td>
+          <td>${c.field}</td><td>${c.qual}</td><td>${c.qs}</td>
+          <td>${c.eduS}</td><td>${c.es}</td>
+          <td><b style="color:#2563eb">${c.career}</b></td>
+          <td><b style="color:#2563eb">${c.cs}</b></td>
+          <td><b>${c.tot}점</b></td>
+          <td>${b(g[0],g[1])}</td>
+          <td style="font-size:10px;color:#64748b">${nx.next==="MAX"?"최고등급":nx.next}</td>
+          <td style="color:${nx.need<=10?"#dc2626":"#64748b"};font-weight:${nx.need<=10?700:400}">${nx.need>0?nx.need+"점 필요":"MAX"}</td>
+          <td style="font-size:10px;color:#64748b">${c.note||"-"}</td>
+          ${mc("cg_"+e.id,"메모...")}
+          <td><button class="btn btn-edit" onclick="editConst('${e.id}')">편집</button></td>
+        </tr>`;
+      })
+    )}</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px">${[["초급","20~39","bw"],["중급","40~64","bg"],["고급","65~74","bi"],["특급","75+","bp"]].map(([g,r,c])=>`<div class="kc" style="text-align:center">${b(g,c)}<div style="font-size:10px;color:#64748b;margin-top:4px">${r}점</div></div>`).join("")}</div>`;
+  }
+
+  else if(tab==="sal"){
+    M.innerHTML=`<div class="sh">💰 급여평가</div><div class="ss">🔄 기본급+직책+기술+자격+식대+교통 총월급여 자동계산 · 이력 포함 · ⚠ 민감정보</div>
+    <div class="alert">⚠ 인사담당자/대표이사 외 열람 금지</div>${fbtn()}
+    <div class="card" style="overflow:hidden">${tbl(["사번","상태","성명","직급","연봉(만)","기본급(월)","직책수당","기술수당","자격수당","식대","교통비","총월급여🔄","상반기","하반기","종합🔄","인상률🔄","포상","징계","포상/징계이력","수기메모","편집"],
+      emps.map(e=>{
+        const s=SAL.find(x=>x.empId===e.id);
+        if(!s)return`<tr><td style="font-family:monospace;font-size:10px;color:#94a3b8">${e.id}</td><td>${b(e.status,stB(e.status))}</td><td><b>${e.name}</b></td><td colspan="17" style="color:#94a3b8">미입력</td><td><button class="btn btn-add" style="font-size:10px;padding:3px 8px" onclick="editSal('${e.id}')">입력</button></td></tr>`;
+        const c=calcS(s);
+        return`<tr>
+          <td style="font-family:monospace;font-size:10px;color:#94a3b8">${e.id}</td>
+          <td>${b(e.status,stB(e.status))}</td>
+          <td><b>${e.name}</b></td><td>${e.grade}</td>
+          <td><b>${won(s.ann)}</b></td>
+          <td style="color:#2563eb;font-weight:600">${won(s.base)}</td>
+          <td>${won(s.pa)}</td>
+          <td>${won(s.ta)}</td>
+          <td>${won(s.qa)}</td>
+          <td>${won(s.meal)}</td>
+          <td>${won(s.trans)}</td>
+          <td><b style="color:#16a34a">${won(c.tot)}</b></td>
+          <td>${s.h1?b(s.h1,gb(s.h1)):"-"}</td>
+          <td>${s.h2?b(s.h2,gb(s.h2)):"-"}</td>
+          <td>${c.ov!=="-"?b(c.ov,gb(c.ov)):"-"}</td>
+          <td><b style="color:#2563eb">${c.raise!=="-"?c.raise+"%":"-"}</b></td>
+          <td>${s.aw}회</td>
+          <td style="color:${s.dis>0?"#dc2626":""}; font-weight:${s.dis>0?700:400}">${s.dis}회</td>
+          <td style="font-size:10px;color:#64748b;max-width:100px;overflow:hidden;text-overflow:ellipsis">${s.history||"-"}</td>
+          ${mc("sal_"+e.id,"메모...")}
+          <td><button class="btn btn-edit" onclick="editSal('${e.id}')">편집</button></td>
+        </tr>`;
+      })
+    )}</div>`;
+  }
+
+  else if(tab==="kpi"){
+    M.innerHTML=`<div class="sh">📈 KPI평가</div><div class="ss">🔄 5대 지표 가중평균 자동계산 · 비고 포함 · 전 직원 표시 · 수기메모</div>${fbtn()}
+    <div class="tip">💡 0점(회색) = 미입력 상태. [편집]으로 점수를 입력하세요.</div>
+    <div class="card" style="overflow:hidden">${tbl(["사번","상태","성명","직급","업무성과(30%)","경력관리(20%)","역량개발(15%)","조직기여(20%)","태도(15%)","가중점수🔄","등급🔄","인센티브🔄","비고","수기메모","편집"],
+      emps.map(e=>{
+        const kR=KPI.find(x=>x.empId===e.id)||{perf:0,cs:0,dev:0,comp:0,att:0,note:""};
+        const k=calcK(kR);const s=SAL.find(x=>x.empId===e.id);
+        const mo=s?Math.round(s.base/10000):0;
+        const inc=Math.round(mo*({S:2,A:1.5,B:1,C:0.5,D:0}[k.g[0]]||0));
+        const none=k.perf===0&&k.cs===0&&k.dev===0&&k.comp===0&&k.att===0;
+        return`<tr style="background:${none?"#fafafa":""}">
+          <td style="font-family:monospace;font-size:10px;color:#94a3b8">${e.id}</td>
+          <td>${b(e.status,stB(e.status))}</td>
+          <td><b>${e.name}</b></td><td>${e.grade}</td>
+          <td style="color:${none?"#94a3b8":""}">${k.perf||"-"}</td>
+          <td style="color:${none?"#94a3b8":"#2563eb"};font-weight:${none?400:600}">${k.cs||"-"}</td>
+          <td style="color:${none?"#94a3b8":""}">${k.dev||"-"}</td>
+          <td style="color:${none?"#94a3b8":""}">${k.comp||"-"}</td>
+          <td style="color:${none?"#94a3b8":""}">${k.att||"-"}</td>
+          <td><b style="color:${none?"#94a3b8":""}">${none?"미입력":k.w+"점"}</b></td>
+          <td>${none?b("미입력","bn"):b(k.g[0],k.g[1])}</td>
+          <td><b style="color:#16a34a">${none?"-":inc+"만"}</b></td>
+          <td style="font-size:10px;color:#64748b">${kR.note||"-"}</td>
+          ${mc("kpi_"+e.id,"평가메모...")}
+          <td><button class="btn btn-edit" onclick="editKpi('${e.id}')">편집</button></td>
+        </tr>`;
+      })
+    )}</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px">${[["업무성과","30%"],["경력관리","20%"],["역량개발","15%"],["조직기여","20%"],["태도리더십","15%"]].map(([n,w])=>`<div class="kc" style="text-align:center"><div style="font-size:10px;font-weight:700">${n}</div><div style="font-size:14px;font-weight:700;color:#2563eb">${w}</div></div>`).join("")}</div>`;
+  }
+
+  else if(tab==="trend"){
+    const yrs=[2021,2022,2023,2024,2025];
+    const rate=(a,c)=>a&&c?((c-a)/a*100).toFixed(1)+"%":"-";
+    const cagr=y=>{const vs=y.filter(val=>val>0);if(vs.length<2)return"-";return((Math.pow(vs[vs.length-1]/vs[0],1/(vs.length-1))-1)*100).toFixed(1)+"%";};
+    M.innerHTML=`<div class="sh">📉 연봉추이</div><div class="ss">🔄 연도별 인상률·CAGR 자동계산 · 편집 · 시각화 · ⚠ 민감정보</div>
+    <div class="alert">⚠ 인사담당자/대표이사 외 열람 금지</div>${fbtn()}
+    <div class="card" style="overflow:hidden">${tbl(["사번","상태","성명","직급","2021","2022","→🔄","2023","→🔄","2024","→🔄","2025","→🔄","CAGR🔄","수기메모","편집"],
+      emps.map(e=>{
+        const t=TREND.find(x=>x.empId===e.id)||{y:[0,0,0,0,0]};const y=t.y;
+        return`<tr>
+          <td style="font-family:monospace;font-size:10px;color:#94a3b8">${e.id}</td>
+          <td>${b(e.status,stB(e.status))}</td>
+          <td><b>${e.name}</b></td><td>${e.grade}</td>
+          <td>${y[0]?won(y[0]):"-"}</td>
+          <td>${y[1]?won(y[1]):"-"}</td>
+          <td style="color:#2563eb;font-weight:600;font-size:10px">${rate(y[0],y[1])}</td>
+          <td>${y[2]?won(y[2]):"-"}</td>
+          <td style="color:#2563eb;font-weight:600;font-size:10px">${rate(y[1],y[2])}</td>
+          <td>${y[3]?won(y[3]):"-"}</td>
+          <td style="color:#2563eb;font-weight:600;font-size:10px">${rate(y[2],y[3])}</td>
+          <td><b>${y[4]?won(y[4]):"-"}</b></td>
+          <td style="color:#2563eb;font-weight:600;font-size:10px">${rate(y[3],y[4])}</td>
+          <td><b style="color:#7c3aed">${cagr(y)}</b></td>
+          ${mc("trend_"+e.id,"메모...")}
+          <td><button class="btn btn-edit" onclick="editTrend('${e.id}')">편집</button></td>
+        </tr>`;
+      })
+    )}</div>
+    <div class="card"><div class="ch">5년 연봉 추이 시각화</div><div style="padding:14px">${emps.map(e=>{const t=TREND.find(x=>x.empId===e.id)||{y:[0,0,0,0,0]};const mx=Math.max(...t.y)||1;const mn=Math.min(...t.y.filter(val=>val>0))||0;return`<div style="margin-bottom:14px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><b style="font-size:11px;width:60px">${e.name}</b><span style="font-size:10px;color:#64748b">CAGR ${cagr(t.y)}</span></div><div class="trend-bar">${t.y.map((val,i)=>`<div class="trend-col"><div class="trend-fill" style="height:${val?Math.round(pct(val-mn+300,mx-mn+300)*0.4+4):3}px;background:${val?"#3b82f6":"#e2e8f0"}"></div><div class="trend-lbl">${yrs[i].toString().slice(2)}</div></div>`).join("")}</div></div>`;}).join("")}</div></div>`;
+  }
+}
+
+
+// ── 내보내기 / 가져오기 ──────────────────────────────────
+
+// 📤 현재 데이터가 박힌 HTML 파일 생성 & 다운로드
+function exportHTML(){
+  // 현재 데이터를 JSON 직렬화
+  const data={EMP,ORGS,PERSONAL,CERTS,EDUS,LEAVE,CONST,SAL,CAREER,KPI,TREND,MEMOS};
+  const dataStr=JSON.stringify(data);
+  // 현재 HTML 읽기
+  const xhr=new XMLHttpRequest();
+  xhr.open("GET",location.href,false);
+  try{xhr.send();}catch(e){}
+  let src=xhr.responseText||document.documentElement.outerHTML;
+  // DEF_ 데이터 다음에 현재 데이터 로드 코드 삽입
+  // localStorage 로드 부분을 현재 데이터로 고정
+  const inject=`\n// ── 내보내기 데이터 (자동 생성) ──\nconst _EXPORTED=${dataStr};\n`;
+  const markerOld="const sv=localStorage.getItem(SKEY);const SD=sv?JSON.parse(sv):null;";
+  const markerNew=`const sv=localStorage.getItem(SKEY);const SD=sv?JSON.parse(sv):_EXPORTED;`;
+  if(src.includes(markerOld)){
+    src=src.replace(markerOld, inject+markerNew);
+  }
+  // 파일 다운로드
+  const blob=new Blob([src],{type:"text/html;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  const today=new Date().toISOString().slice(0,10).replace(/-/g,"");
+  a.download=`아키테크_인사관리_${today}.html`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  alert("✅ 데이터 포함 HTML 파일이 저장되었습니다.\n이 파일을 전달하면 동일한 데이터로 열립니다.");
+}
+
+// 💾 JSON 내보내기
+function exportJSON(){
+  const data={EMP,ORGS,PERSONAL,CERTS,EDUS,LEAVE,CONST,SAL,CAREER,KPI,TREND,MEMOS};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  const today=new Date().toISOString().slice(0,10).replace(/-/g,"");
+  a.download=`아키테크_인사데이터_${today}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// 📥 JSON 가져오기
+function importJSON(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(!d.EMP){alert("올바른 형식의 JSON 파일이 아닙니다.");return;}
+      if(!confirm(`데이터를 가져오면 현재 데이터가 덮어씌워집니다.\n직원 ${d.EMP.length}명 · 자격증 ${d.CERTS.length}건\n계속할까요?`))return;
+      EMP=d.EMP||EMP;ORGS=d.ORGS||ORGS;PERSONAL=d.PERSONAL||PERSONAL;
+      CERTS=d.CERTS||CERTS;EDUS=d.EDUS||EDUS;LEAVE=d.LEAVE||LEAVE;
+      CONST=d.CONST||CONST;SAL=d.SAL||SAL;CAREER=d.CAREER||CAREER;
+      KPI=d.KPI||KPI;TREND=d.TREND||TREND;MEMOS=d.MEMOS||MEMOS;
+      saveAll();render();
+      alert(`✅ 데이터를 성공적으로 가져왔습니다.\n직원 ${EMP.length}명 로드 완료`);
+    }catch(err){alert("JSON 파일 읽기 오류: "+err.message);}
+  };
+  reader.readAsText(file,"utf-8");
+  event.target.value="";
+}
+
+function render(){renderNav();renderMain();}
+render();
+</script>
+</body>
+</html>
